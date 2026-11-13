@@ -1,0 +1,67 @@
+# MONO architecture
+
+Single Gradle module (`:app`) with package boundaries that mirror the product areas.
+Splitting into Gradle modules can come later; one module keeps cloud builds fast.
+
+```
+com.shoron.mono
+├── MonoApplication, AppContainer   process entry + manual dependency container
+├── core/design      LayoutMetrics (proportional sizing), MonoIconFilter
+├── core/theme       MonoColors, MonoTheme (Material 3, dark only)
+├── launcher/        LauncherActivity (HOME), LauncherRoot (home ⇄ drawer), AppActionsMenu
+│   ├── home/        HomeScreen, HomeViewModel
+│   └── drawer/      DrawerScreen, DrawerViewModel, DrawerModel, AlphabetRail
+├── widgets/clock    TimeTicker, TimeInWords, ClockSnapshot
+├── widgets/date     (Phase 3)
+├── widgets/weather  (Phase 4)
+├── widgets/battery  (Phase 3)
+├── icons            (Phase 5 — Thin Line icon engine)
+├── wallpaper        (Phase 2 — ocean wallpaper engine)
+├── apps             AppEntry, AppRepository, AppLauncher, AppSearch, IconCache, AppIcon,
+│                    DefaultPins, DefaultAppResolver, PinnedApps
+├── settings         SettingsActivity, SettingsScreen, SettingsViewModel, DefaultHome
+└── data             LauncherPreferences (DataStore), PinList
+```
+
+## Pattern
+
+MVVM + repositories. Repositories expose `Flow`/`StateFlow`; ViewModels combine them with
+`stateIn(WhileSubscribed(5s))`; screens collect with `collectAsStateWithLifecycle()`.
+Dependencies are wired by hand in `AppContainer` (no DI framework, no reflection).
+
+```
+LauncherApps callbacks ──► AppRepository.apps ─┐
+DataStore ──────────────► LauncherPreferences ─┼─► HomeViewModel ──► HomeScreen
+TIME_TICK broadcast ────► TimeTicker ──────────┘   DrawerViewModel ─► DrawerScreen
+```
+
+## Key decisions
+
+- **App identity** is `package/class|userSerial` (`AppKeys`), so work-profile apps are distinct
+  and pins survive restarts. `AppEntry` holds no Android types → JVM-testable and Compose-stable.
+- **App list** is event-driven (`LauncherApps.Callback`); never polled. No `QUERY_ALL_PACKAGES`.
+- **Icons** load lazily off the main thread into an `LruCache` sized to 1/16 of the heap and are
+  cleared only under real memory pressure (`onTrimMemory ≥ MODERATE`).
+- **Clock** uses the system `TIME_TICK` broadcast (once a minute) and is subscribed only while
+  the home screen is started. `ClockSnapshot` is compared by value, so only changed text recomposes.
+- **Layout** is proportional: `LayoutMetrics` derives gutters, type and spacing from the space left
+  after `WindowInsets.safeDrawing`. There are no hard-coded screen sizes; landscape switches to a
+  two-column layout.
+- **HOME activity**: `singleTask`, `excludeFromRecents`, `taskAffinity=""`, handles config changes
+  itself; Back only closes the drawer; a Home press while visible returns to the home page.
+- **Default home** uses `RoleManager.ROLE_HOME` on Android 10+, with a fallback to the system
+  Home settings for OEM builds that suppress the dialog.
+
+## Performance rules (apply to every phase)
+
+1. No polling and no continuous animation by default.
+2. Background work only through lifecycle-aware flows or WorkManager with constraints.
+3. Lazy lists for anything that can grow; stable keys and content types.
+4. Immutable UI state classes; pass the smallest state each composable needs.
+5. Vector drawables for icons; compressed WebP for bitmaps.
+6. New permissions must be justified in DEVELOPMENT_LOG.md.
+
+## Permissions
+
+Phase 1 requests **no** runtime or special permissions. The manifest `<queries>` block lists only
+launcher activities and the default-app intents used to choose the first home shortcuts.

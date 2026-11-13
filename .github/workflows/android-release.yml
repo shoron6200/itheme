@@ -1,0 +1,64 @@
+name: Android signed release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MONO_KEYSTORE_BASE64: ${{ secrets.MONO_KEYSTORE_BASE64 }}
+      MONO_KEYSTORE_PASSWORD: ${{ secrets.MONO_KEYSTORE_PASSWORD }}
+      MONO_KEY_ALIAS: ${{ secrets.MONO_KEY_ALIAS }}
+      MONO_KEY_PASSWORD: ${{ secrets.MONO_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check signing secrets
+        run: |
+          missing=0
+          for name in MONO_KEYSTORE_BASE64 MONO_KEYSTORE_PASSWORD MONO_KEY_ALIAS MONO_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then echo "::error::Repository secret $name is not set"; missing=1; fi
+          done
+          exit $missing
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Restore keystore
+        run: |
+          echo "$MONO_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/mono-release.jks"
+          echo "MONO_KEYSTORE_PATH=$RUNNER_TEMP/mono-release.jks" >> "$GITHUB_ENV"
+
+      - name: Test and build signed APK
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          ./gradlew --no-daemon testReleaseUnitTest assembleRelease \
+            -PmonoVersionName="$VERSION" -PmonoVersionCode="${GITHUB_RUN_NUMBER}"
+
+      - name: Verify signature
+        run: |
+          BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)
+          "${BUILD_TOOLS}apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          cp app/build/outputs/apk/release/app-release.apk "mono-${VERSION}.apk"
+          gh release create "$GITHUB_REF_NAME" "mono-${VERSION}.apk" \
+            --title "MONO ${VERSION}" --generate-notes
+
+      - name: Remove keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/mono-release.jks"
