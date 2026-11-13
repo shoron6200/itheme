@@ -92,6 +92,7 @@ fun HomeScreen(
             .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
         val metrics = rememberLayoutMetrics(maxWidth, maxHeight)
+        val usableHeight = maxHeight
         if (metrics.isLandscape) {
             Row(
                 Modifier
@@ -115,13 +116,13 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(start = metrics.gutter, end = metrics.gutter / 2),
             ) {
-                Spacer(Modifier.height(maxHeight * 0.05f))
+                Spacer(Modifier.height(usableHeight * 0.05f))
                 StatusLine(clock, metrics)
-                Spacer(Modifier.height(maxHeight * 0.08f))
+                Spacer(Modifier.height(usableHeight * 0.08f))
                 ClockBlock(clock, metrics)
                 Spacer(Modifier.weight(1f))
                 PinnedAppList(state.pinnedApps, metrics, onLaunch, onAppInfo, onUnpin, onOpenSettings)
-                Spacer(Modifier.height(maxHeight * 0.06f))
+                Spacer(Modifier.height(usableHeight * 0.06f))
             }
         }
     }
