@@ -4,6 +4,17 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added — Phase 2: ocean visual design
+- Wallpaper engine: MONO draws its own full-screen wallpaper behind the home screen.
+- Three original monochrome ocean wallpapers: Shoreline (default), Undertow, Swell.
+- Use your own photo via the system photo picker (no storage permission).
+- Wallpaper editor: live preview at your screen's proportions, drag to reposition,
+  dim slider, monochrome switch, reset, apply.
+- Typography: Outfit for all text and a Sacramento script weekday with a hairline strike,
+  matching the editorial layout. Text shadows keep the home screen legible over foam/photos.
+- App drawer is now slightly translucent over the wallpaper.
+- Font and artwork credits in Settings → About.
+
 ### Added — Phase 1: launcher foundation
 - MONO can be set as the default Home app (role request on Android 10+, settings fallback).
 - Editorial home screen: date line, month, weekday, time in words, accent bar, and up to

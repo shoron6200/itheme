@@ -7,13 +7,13 @@ Target device: Realme 9 SE (works on any Android 8.0+ phone).
 
 ## Status
 
-Phase 1 — **stable launcher foundation** (see [CHANGELOG.md](CHANGELOG.md) and
+Phase 2 — **ocean visual design** (see [CHANGELOG.md](CHANGELOG.md) and
 [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md)).
 
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Launcher foundation: HOME activity, app list, drawer, pins, settings, CI | built in CI; awaiting device test |
-| 2 | Ocean visual design, wallpaper engine, typography | planned |
+| 2 | Ocean visual design, wallpaper engine, typography | in progress |
 | 3 | Clock (incl. radial dial), date and battery widgets | planned |
 | 4 | Weather engine (Open-Meteo, cached) | planned |
 | 5 | Thin Line icon engine | planned |
@@ -37,7 +37,9 @@ Debug builds use the id `com.shoron.mono.debug`, so they install next to future 
 
 - **Swipe up** on home: app drawer (search, A–Z rail).
 - **Long-press an app**: pin/unpin, app info.
-- **Long-press empty home space**: MONO settings (reorder or remove home apps).
+- **Long-press empty home space**: MONO settings (wallpaper, reorder or remove home apps).
+- **Settings → Wallpaper**: pick Shoreline / Undertow / Swell or your own photo, drag to
+  reposition, adjust dim and monochrome, then Apply.
 - **Back / Home** in the drawer: return to home.
 
 ## Building

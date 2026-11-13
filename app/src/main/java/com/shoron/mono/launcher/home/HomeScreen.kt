@@ -29,6 +29,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -36,8 +40,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
@@ -49,6 +52,8 @@ import com.shoron.mono.apps.AppIcon
 import com.shoron.mono.core.design.LayoutMetrics
 import com.shoron.mono.core.design.rememberLayoutMetrics
 import com.shoron.mono.core.theme.MonoColors
+import com.shoron.mono.core.theme.Outfit
+import com.shoron.mono.core.theme.Sacramento
 import com.shoron.mono.launcher.AppAction
 import com.shoron.mono.launcher.AppActionsMenu
 import com.shoron.mono.widgets.clock.ClockSnapshot
@@ -56,7 +61,7 @@ import com.shoron.mono.widgets.clock.ClockSnapshot
 /**
  * Editorial, left-aligned home screen:
  *   status line · month · day · time in words · accent bar · vertical app shortcuts.
- * Phase 2 adds the ocean wallpaper and typography; Phases 3–4 fill the status/weather slots.
+ * The wallpaper is drawn behind this screen by LauncherRoot; Phases 3–4 fill the status slots.
  */
 @Composable
 fun HomeScreen(
@@ -76,7 +81,6 @@ fun HomeScreen(
     BoxWithConstraints(
         modifier
             .fillMaxSize()
-            .background(MonoColors.Ink)
             .pointerInput(Unit) { detectTapGestures(onLongPress = { longPress() }) }
             .pointerInput(swipeThresholdPx) {
                 var dragged = 0f
@@ -128,14 +132,21 @@ fun HomeScreen(
     }
 }
 
+/** Soft shadow so editorial type stays legible over bright foam or user photos. */
+private val Legible = Shadow(color = Color.Black.copy(alpha = 0.55f), offset = Offset(0f, 1f), blurRadius = 8f)
+
 @Composable
 private fun StatusLine(clock: ClockSnapshot, metrics: LayoutMetrics) {
     Text(
         text = clock.dateLine,
-        color = MonoColors.Muted,
-        fontSize = metrics.sp(11f),
-        fontWeight = FontWeight.Medium,
-        letterSpacing = 1.6.sp,
+        style = TextStyle(
+            color = MonoColors.Muted,
+            fontFamily = Outfit,
+            fontSize = metrics.sp(11f),
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 1.6.sp,
+            shadow = Legible,
+        ),
     )
 }
 
@@ -144,31 +155,51 @@ private fun ClockBlock(clock: ClockSnapshot, metrics: LayoutMetrics) {
     Column {
         Text(
             text = clock.month,
-            color = MonoColors.Foreground,
-            fontSize = metrics.sp(40f),
-            fontWeight = FontWeight.Bold,
-            letterSpacing = (-0.5).sp,
             maxLines = 1,
+            style = TextStyle(
+                color = MonoColors.Foreground,
+                fontFamily = Outfit,
+                fontSize = metrics.sp(44f),
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.6).sp,
+                shadow = Legible,
+            ),
+        )
+        Spacer(Modifier.height(metrics.dp(14f)))
+        // Script weekday with a hairline drawn through it, editorial style.
+        val strike = MonoColors.Muted
+        Text(
+            text = clock.dayOfWeek,
+            modifier = Modifier.drawBehind {
+                val y = size.height * 0.58f
+                drawLine(
+                    color = strike,
+                    start = Offset(-size.width * 0.08f, y),
+                    end = Offset(size.width * 1.04f, y),
+                    strokeWidth = 1.dp.toPx(),
+                )
+            },
+            style = TextStyle(
+                color = MonoColors.Foreground,
+                fontFamily = Sacramento,
+                fontSize = metrics.sp(40f),
+                shadow = Legible,
+            ),
         )
         Spacer(Modifier.height(metrics.dp(6f)))
         Text(
-            text = clock.dayOfWeek,
-            color = MonoColors.Muted,
-            fontSize = metrics.sp(26f),
-            fontFamily = FontFamily.Serif,
-            fontStyle = FontStyle.Italic,
-            fontWeight = FontWeight.Light,
-        )
-        Spacer(Modifier.height(metrics.dp(8f)))
-        Text(
             text = buildAnnotatedString {
-                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(clock.hourWord) }
+                withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) { append(clock.hourWord) }
                 withStyle(SpanStyle(fontWeight = FontWeight.Light)) { append(clock.minuteWords) }
             },
-            color = MonoColors.Foreground,
-            fontSize = metrics.sp(15f),
+            style = TextStyle(
+                color = MonoColors.Foreground,
+                fontFamily = Outfit,
+                fontSize = metrics.sp(15f),
+                shadow = Legible,
+            ),
         )
-        Spacer(Modifier.height(metrics.dp(18f)))
+        Spacer(Modifier.height(metrics.dp(20f)))
         Box(
             Modifier
                 .size(width = metrics.dp(26f), height = 2.dp)
@@ -225,12 +256,16 @@ private fun HomeAppRow(
             Spacer(Modifier.width(metrics.dp(24f)))
             Text(
                 text = entry.label,
-                color = MonoColors.Foreground,
-                fontSize = metrics.sp(13f),
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.2.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                style = TextStyle(
+                    color = MonoColors.Foreground,
+                    fontFamily = Outfit,
+                    fontSize = metrics.sp(12.5f),
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.3.sp,
+                    shadow = Legible,
+                ),
             )
         }
         AppActionsMenu(

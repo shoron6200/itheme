@@ -57,6 +57,7 @@ import com.shoron.mono.R
 import com.shoron.mono.apps.AppEntry
 import com.shoron.mono.apps.AppIcon
 import com.shoron.mono.core.theme.MonoColors
+import com.shoron.mono.core.theme.Outfit
 import com.shoron.mono.launcher.AppAction
 import com.shoron.mono.launcher.AppActionsMenu
 import kotlinx.coroutines.launch
@@ -85,7 +86,7 @@ fun DrawerScreen(
     Column(
         modifier
             .fillMaxSize()
-            .background(MonoColors.Ink)
+            .background(MonoColors.Ink.copy(alpha = 0.93f))
             .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
         SearchField(
@@ -163,7 +164,7 @@ private fun SearchField(
         value = query,
         onValueChange = onQueryChange,
         singleLine = true,
-        textStyle = TextStyle(color = MonoColors.Foreground, fontSize = 16.sp),
+        textStyle = TextStyle(color = MonoColors.Foreground, fontSize = 16.sp, fontFamily = Outfit),
         cursorBrush = SolidColor(MonoColors.Foreground),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
         keyboardActions = KeyboardActions(onGo = { onSubmit() }),

@@ -2,6 +2,30 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-13 — Phase 2: ocean visual design
+
+### Decisions
+- **Own wallpaper rendering** instead of the system wallpaper: no `SET_WALLPAPER` permission,
+  full control over focal point / dim / greyscale, and the editorial layout can rely on it.
+  Cost: one display-sized hardware bitmap (GPU memory), decoded once per source and size.
+- **Artwork**: original, procedural, reproducible (`tools/wallpapers/generate.py`, fixed seeds).
+  The reference pack's wallpapers are proprietary and are not used or traced.
+- **Fonts**: Outfit and Sacramento from the Google Fonts catalogue (SIL OFL 1.1), obtained via
+  the `@expo-google-fonts` npm packages (TTF) with license texts from `@fontsource`.
+  Shipped **unmodified** — Sacramento has a Reserved Font Name, so subsetting would require a
+  rename. ~390 KB total.
+- **Photo import** copies a downscaled WebP into `filesDir/wallpapers/custom_<version>.webp`;
+  old imports are deleted on apply. Avoids persistable URI grants, which some OEM pickers lack.
+- `ImageDecoder` (API 28+) for EXIF-correct, size-targeted decoding; `BitmapFactory` with
+  power-of-two sampling on API 26–27 (no EXIF rotation there — documented limitation).
+- Settings navigation is a two-state enum + `BackHandler`; no navigation library needed yet.
+
+### Permissions
+- None added. The Android photo picker (`PickVisualMedia`) needs no permission.
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-13 — Phase 1: launcher foundation
 
 ### Starting point

@@ -32,6 +32,7 @@ import com.shoron.mono.launcher.drawer.DrawerScreen
 import com.shoron.mono.launcher.drawer.DrawerViewModel
 import com.shoron.mono.launcher.home.HomeScreen
 import com.shoron.mono.launcher.home.HomeViewModel
+import com.shoron.mono.wallpaper.WallpaperLayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -65,6 +66,7 @@ fun LauncherRoot(
 
     val clock by homeViewModel.clock.collectAsStateWithLifecycle()
     val home by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val wallpaper by homeViewModel.wallpaper.collectAsStateWithLifecycle()
 
     val launch: (AppEntry) -> Unit = { entry ->
         if (!homeViewModel.launch(entry)) context.toast(context.getString(R.string.toast_launch_failed))
@@ -74,6 +76,8 @@ fun LauncherRoot(
     }
 
     Box(Modifier.fillMaxSize()) {
+        wallpaper?.let { WallpaperLayer(it) }
+
         HomeScreen(
             clock = clock,
             state = home,

@@ -12,6 +12,8 @@ import com.shoron.mono.apps.AppLauncher
 import com.shoron.mono.apps.AppRepository
 import com.shoron.mono.apps.PinnedApps
 import com.shoron.mono.data.LauncherPreferences
+import com.shoron.mono.wallpaper.WallpaperRepository
+import com.shoron.mono.wallpaper.WallpaperSettings
 import com.shoron.mono.widgets.clock.ClockSnapshot
 import com.shoron.mono.widgets.clock.TimeTicker
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,7 +33,13 @@ class HomeViewModel(
     private val preferences: LauncherPreferences,
     private val appLauncher: AppLauncher,
     timeTicker: TimeTicker,
+    wallpaperRepository: WallpaperRepository,
 ) : ViewModel() {
+
+    /** `null` until stored settings are read, so the default never flashes before a custom photo. */
+    val wallpaper: StateFlow<WallpaperSettings?> = wallpaperRepository.settings
+        .map<WallpaperSettings, WallpaperSettings?> { it }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), null)
 
     val uiState: StateFlow<HomeUiState> =
         combine(appRepository.apps, preferences.pinnedKeys) { apps, keys ->
@@ -65,7 +73,13 @@ class HomeViewModel(
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MonoApplication
                 val c = app.container
-                HomeViewModel(c.appRepository, c.launcherPreferences, c.appLauncher, c.timeTicker)
+                HomeViewModel(
+                    c.appRepository,
+                    c.launcherPreferences,
+                    c.appLauncher,
+                    c.timeTicker,
+                    c.wallpaperRepository,
+                )
             }
         }
     }

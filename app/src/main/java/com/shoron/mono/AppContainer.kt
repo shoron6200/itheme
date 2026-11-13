@@ -7,6 +7,8 @@ import com.shoron.mono.apps.DefaultAppResolver
 import com.shoron.mono.apps.DefaultPins
 import com.shoron.mono.apps.IconCache
 import com.shoron.mono.data.LauncherPreferences
+import com.shoron.mono.wallpaper.WallpaperPreferences
+import com.shoron.mono.wallpaper.WallpaperRepository
 import com.shoron.mono.widgets.clock.TimeTicker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +32,7 @@ class AppContainer(context: Context) {
     val appRepository = AppRepository(appContext, applicationScope, iconCache)
     val appLauncher = AppLauncher(appContext)
     val timeTicker = TimeTicker(appContext)
+    val wallpaperRepository = WallpaperRepository(appContext, WallpaperPreferences(appContext))
     private val defaultAppResolver = DefaultAppResolver(appContext)
 
     init {

@@ -29,4 +29,20 @@
     <string name="settings_about">About</string>
     <string name="settings_version">Version %1$s</string>
     <string name="settings_back">Back</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_wallpaper">Wallpaper</string>
+    <string name="settings_licenses">Fonts: Outfit © The Outfit Project Authors and Sacramento © Astigmatic, both under the SIL Open Font License 1.1. Wallpapers are original MONO artwork.</string>
+
+    <string name="wallpaper_shoreline">Shoreline</string>
+    <string name="wallpaper_undertow">Undertow</string>
+    <string name="wallpaper_swell">Swell</string>
+    <string name="wallpaper_custom">Your photo</string>
+    <string name="wallpaper_pick_photo">Choose photo</string>
+    <string name="wallpaper_dim">Dim</string>
+    <string name="wallpaper_monochrome">Monochrome</string>
+    <string name="wallpaper_drag_hint">Drag the preview to reposition</string>
+    <string name="wallpaper_reset">Reset position</string>
+    <string name="wallpaper_apply">Apply</string>
+    <string name="wallpaper_applied">Wallpaper applied</string>
+    <string name="wallpaper_import_failed">Couldn\'t open that image</string>
 </resources>

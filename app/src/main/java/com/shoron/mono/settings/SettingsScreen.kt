@@ -1,9 +1,11 @@
 package com.shoron.mono.settings
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -32,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,8 +54,21 @@ import com.shoron.mono.apps.AppIcon
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.data.PinList
 
+private enum class SettingsPage { Main, Wallpaper }
+
+/** Two-page settings flow without a navigation library: main list and wallpaper editor. */
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsNavHost(onExit: () -> Unit) {
+    var page by rememberSaveable { mutableStateOf(SettingsPage.Main) }
+    BackHandler(enabled = page != SettingsPage.Main) { page = SettingsPage.Main }
+    when (page) {
+        SettingsPage.Main -> SettingsScreen(onBack = onExit, onOpenWallpaper = { page = SettingsPage.Wallpaper })
+        SettingsPage.Wallpaper -> WallpaperScreen(onBack = { page = SettingsPage.Main })
+    }
+}
+
+@Composable
+fun SettingsScreen(onBack: () -> Unit, onOpenWallpaper: () -> Unit) {
     val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val pinned by viewModel.pinnedApps.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -121,6 +138,30 @@ fun SettingsScreen(onBack: () -> Unit) {
         }
 
         item {
+            SectionTitle(stringResource(R.string.settings_appearance))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenWallpaper)
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_wallpaper),
+                    color = MonoColors.Foreground,
+                    fontSize = 15.sp,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MonoColors.Muted,
+                )
+            }
+            Spacer(Modifier.height(24.dp))
+        }
+
+        item {
             SectionTitle(stringResource(R.string.settings_home_apps))
             Text(
                 text = stringResource(R.string.settings_home_apps_hint, PinList.MAX_PINS),
@@ -186,6 +227,12 @@ fun SettingsScreen(onBack: () -> Unit) {
                 text = stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                 color = MonoColors.Muted,
                 fontSize = 14.sp,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.settings_licenses),
+                color = MonoColors.Faint,
+                fontSize = 12.sp,
             )
         }
     }

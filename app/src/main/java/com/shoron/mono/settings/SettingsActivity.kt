@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import com.shoron.mono.apps.LocalIconLoader
+import com.shoron.mono.wallpaper.LocalWallpaperLoader
 import com.shoron.mono.core.theme.MonoTheme
 import com.shoron.mono.monoContainer
 
@@ -24,8 +25,11 @@ class SettingsActivity : ComponentActivity() {
         val container = monoContainer
         setContent {
             MonoTheme {
-                CompositionLocalProvider(LocalIconLoader provides container.appRepository) {
-                    SettingsScreen(onBack = ::finish)
+                CompositionLocalProvider(
+                    LocalIconLoader provides container.appRepository,
+                    LocalWallpaperLoader provides container.wallpaperRepository,
+                ) {
+                    SettingsNavHost(onExit = ::finish)
                 }
             }
         }

@@ -28,7 +28,31 @@ redistribute its wallpapers, icons or widget files. All MONO assets are:
 - openly licensed (e.g. SIL OFL fonts) with the license kept in the repo, or
 - chosen by the user from their own device via the system photo picker.
 
-## Tokens (Phase 1)
+## Wallpapers
+
+Three original monochrome ocean pieces, generated procedurally (seeded fractal noise, domain
+warping, density-driven foam carving) by `tools/wallpapers/generate.py`:
+
+| Id | Name | Composition |
+|---|---|---|
+| `builtin:shoreline` | Shoreline | dark water left, foam breaking down the right edge (default) |
+| `builtin:undertow` | Undertow | foam rolling in from the lower-right corner, outer crest line |
+| `builtin:swell` | Swell | deep water with three thin broken crests |
+
+1600×3040 px greyscale WebP (q80), ~60–130 KiB each. Regenerate with
+`python3 tools/wallpapers/generate.py`.
+
+## Typography
+
+| Role | Typeface | License |
+|---|---|---|
+| UI, month, time, labels | Outfit (Light–Bold) | SIL OFL 1.1 |
+| Weekday script accent | Sacramento | SIL OFL 1.1 (Reserved Font Name; shipped unmodified) |
+
+Font files are bundled unmodified in `res/font`; full license texts ship in
+`assets/licenses/`.
+
+## Tokens
 
 | Token | Value |
 |---|---|
