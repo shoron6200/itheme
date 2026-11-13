@@ -1,6 +1,16 @@
 package com.shoron.mono.lockscreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -48,6 +59,10 @@ import com.shoron.mono.core.design.verticalText
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.core.theme.Outfit
 import com.shoron.mono.data.LockSettings
+import com.shoron.mono.media.MediaCard
+import com.shoron.mono.media.MediaInfo
+import com.shoron.mono.widgets.battery.BatteryIndicator
+import com.shoron.mono.widgets.battery.BatteryState
 import com.shoron.mono.wallpaper.WallpaperImage
 import com.shoron.mono.wallpaper.WallpaperSettings
 import com.shoron.mono.widgets.clock.ClockFormatter
@@ -69,6 +84,9 @@ fun LockScreenContent(
     clock: ClockSnapshot,
     time: State<LocalTime>,
     weather: WeatherSnapshot?,
+    battery: BatteryState?,
+    media: MediaInfo?,
+    mediaActions: MediaActions,
     onUnlock: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -105,10 +123,12 @@ fun LockScreenContent(
                     ),
                 ),
         )
+        // Same layout box as before going immersive: the status-bar height is still reserved
+        // (ignoring visibility), so the clock and date keep their exact positions.
         BoxWithConstraints(
             Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.safeDrawing),
+                .windowInsetsPadding(LockLayoutInsets),
         ) {
             val metrics = rememberLayoutMetrics(maxWidth, maxHeight)
             LockClock(
@@ -120,6 +140,42 @@ fun LockScreenContent(
                 metrics = metrics,
                 modifier = Modifier.offset(x = maxWidth * lock.textX, y = maxHeight * lock.textY),
             )
+            // Subtle battery in the corner the hidden status bar used to occupy.
+            battery?.let {
+                BatteryIndicator(
+                    state = it,
+                    textStyle = TextStyle(fontFamily = Outfit, fontSize = 11.sp, letterSpacing = 0.5.sp),
+                    color = MonoColors.Muted,
+                    showStatusLabel = true,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 6.dp, end = 20.dp),
+                )
+            }
+
+            // Now-playing card: hidden unless a media session is active.
+            val lastMedia = remember { mutableStateOf<MediaInfo?>(null) }
+            if (media != null) lastMedia.value = media
+            AnimatedVisibility(
+                visible = media != null,
+                enter = fadeIn(tween(260)) + slideInVertically(tween(320)) { it / 3 },
+                exit = fadeOut(tween(200)) + slideOutVertically(tween(240)) { it / 3 },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(start = 20.dp, end = 20.dp, bottom = 64.dp),
+            ) {
+                lastMedia.value?.let { info ->
+                    MediaCard(
+                        media = info,
+                        onPlayPause = mediaActions.playPause,
+                        onPrevious = mediaActions.previous,
+                        onNext = mediaActions.next,
+                        onSeek = mediaActions.seekTo,
+                        onDismiss = mediaActions.dismiss,
+                    )
+                }
+            }
+
             Column(
                 Modifier
                     .align(Alignment.BottomCenter)
@@ -140,6 +196,19 @@ fun LockScreenContent(
         }
     }
 }
+
+/** Transport callbacks for the media card (a stable holder, created once per screen). */
+class MediaActions(
+    val playPause: () -> Unit,
+    val previous: () -> Unit,
+    val next: () -> Unit,
+    val seekTo: (Long) -> Unit,
+    val dismiss: () -> Unit,
+)
+
+@OptIn(ExperimentalLayoutApi::class)
+private val LockLayoutInsets: WindowInsets
+    @Composable get() = WindowInsets.statusBarsIgnoringVisibility.union(WindowInsets.displayCutout)
 
 @Composable
 private fun LockClock(

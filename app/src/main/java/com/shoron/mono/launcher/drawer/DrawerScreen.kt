@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -126,18 +127,28 @@ fun DrawerScreen(
             }
 
             if (query.isBlank() && state.letters.size > 1) {
+                // Section at the top of the list; read lazily so scrolling only recomposes the rail.
+                val currentLetter by remember(state.letterIndex) {
+                    derivedStateOf {
+                        val first = listState.firstVisibleItemIndex
+                        state.letterIndex.entries.lastOrNull { it.value <= first }?.key
+                    }
+                }
                 AlphabetRail(
                     letters = state.letters,
-                    onLetter = { letter ->
+                    current = currentLetter,
+                    onLetter = { letter, smooth ->
                         state.letterIndex[letter]?.let { index ->
-                            scope.launch { listState.scrollToItem(index) }
+                            scope.launch {
+                                if (smooth) listState.animateScrollToItem(index) else listState.scrollToItem(index)
+                            }
                         }
                     },
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight(0.85f)
-                        .width(36.dp)
-                        .padding(end = 8.dp),
+                        .width(44.dp)
+                        .padding(end = 6.dp),
                 )
             }
 

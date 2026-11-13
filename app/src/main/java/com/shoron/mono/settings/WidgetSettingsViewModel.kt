@@ -12,6 +12,7 @@ import com.shoron.mono.data.WidgetPreferences
 import com.shoron.mono.data.WidgetSettings
 import com.shoron.mono.lockscreen.LockScreenController
 import com.shoron.mono.lockscreen.LockWallpaperSync
+import com.shoron.mono.media.MediaSessionRepository
 import com.shoron.mono.wallpaper.WallpaperRepository
 import com.shoron.mono.widgets.weather.WeatherRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +30,11 @@ class WidgetSettingsViewModel(
     private val wallpapers: WallpaperRepository,
     private val lockSync: LockWallpaperSync,
     private val lockController: LockScreenController,
+    private val mediaSessions: MediaSessionRepository,
 ) : ViewModel() {
+
+    fun hasMediaAccess(): Boolean = mediaSessions.hasAccess()
+
 
     val widgets: StateFlow<WidgetSettings?> =
         preferences.widgets.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -82,6 +87,7 @@ class WidgetSettingsViewModel(
                     c.wallpaperRepository,
                     c.lockWallpaperSync,
                     c.lockScreenController,
+                    c.mediaSessions,
                 )
             }
         }

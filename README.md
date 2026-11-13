@@ -57,7 +57,9 @@ always-on display. MONO therefore:
 - hands every unlock to Android: swipe up → the system PIN / pattern / password / biometric
   prompt (`requestDismissKeyguard`). Fingerprint unlock closes MONO's screen automatically;
 - never disables the keyguard, never reads notifications, and stays out of the way during calls;
-- can optionally set the selected wallpaper as Android's own lock-screen wallpaper.
+- can optionally set the selected wallpaper as Android's own lock-screen wallpaper;
+- shows a media card while music/video plays (needs notification access, which Android
+  requires for seeing other apps' media sessions; MONO does not read notifications).
 
 Limits: to appear after *other* apps on Android 10+ it needs "Display over other apps"
 (user-granted, optional). It relies on MONO's process being alive (normally true for the Home

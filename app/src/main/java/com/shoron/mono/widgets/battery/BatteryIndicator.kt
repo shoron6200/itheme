@@ -28,6 +28,7 @@ fun BatteryIndicator(
     textStyle: TextStyle,
     modifier: Modifier = Modifier,
     color: Color = MonoColors.Foreground,
+    showStatusLabel: Boolean = false,
 ) {
     val description = buildString {
         append("Battery ").append(state.percent).append('%')
@@ -39,7 +40,13 @@ fun BatteryIndicator(
     ) {
         BatteryGlyph(state, color, Modifier.size(width = 22.dp, height = 11.dp))
         Spacer(Modifier.width(6.dp))
-        Text(text = "${state.percent}%", style = textStyle.copy(color = color))
+        val label = when {
+            !showStatusLabel -> ""
+            state.full -> " · full"
+            state.charging -> " · charging"
+            else -> ""
+        }
+        Text(text = "${state.percent}%$label", style = textStyle.copy(color = color))
     }
 }
 

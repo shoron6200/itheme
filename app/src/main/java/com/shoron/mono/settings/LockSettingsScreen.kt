@@ -54,8 +54,10 @@ fun LockSettingsScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     var overlayAllowed by remember { mutableStateOf(viewModel.canShowLockFromBackground()) }
     var syncing by remember { mutableStateOf(false) }
+    var mediaAllowed by remember { mutableStateOf(viewModel.hasMediaAccess()) }
     LifecycleResumeEffect(Unit) {
         overlayAllowed = viewModel.canShowLockFromBackground()
+        mediaAllowed = viewModel.hasMediaAccess()
         onPauseOrDispose { }
     }
     val lock = lockState ?: return
@@ -81,6 +83,14 @@ fun LockSettingsScreen(onBack: () -> Unit) {
                 color = if (overlayAllowed) MonoColors.Muted else MonoColors.Foreground,
                 fontSize = 14.sp,
                 modifier = Modifier.clickable(enabled = !overlayAllowed) { openOverlaySettings(context) },
+            )
+
+            SettingsSectionTitle(stringResource(R.string.lock_media))
+            Text(
+                text = stringResource(if (mediaAllowed) R.string.lock_media_granted else R.string.lock_media_missing),
+                color = if (mediaAllowed) MonoColors.Muted else MonoColors.Foreground,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable { openNotificationAccess(context) },
             )
 
             SettingsSectionTitle(stringResource(R.string.settings_appearance))
@@ -131,6 +141,11 @@ fun LockSettingsScreen(onBack: () -> Unit) {
             SettingsNote(stringResource(R.string.lock_limits))
         }
     }
+}
+
+private fun openNotificationAccess(context: Context) {
+    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching { context.startActivity(intent) }
 }
 
 private fun openOverlaySettings(context: Context) {

@@ -83,4 +83,9 @@
     <string name="lock_sync_failed">Couldn\'t set the lock screen wallpaper</string>
     <string name="lock_limits">Android does not let apps replace the secure lock screen or the always-on display. MONO\'s lock screen sits on top of it and never bypasses your PIN, password or biometrics.</string>
     <string name="lock_swipe_hint">swipe up to unlock</string>
+
+    <string name="lock_media">Media controls</string>
+    <string name="lock_media_granted">On: a player card appears on the lock screen while music or video is playing or paused. MONO does not read your notifications.</string>
+    <string name="lock_media_missing">Off: Android requires notification access for apps to see what is playing. Tap to allow MONO (it does not read your notifications).</string>
+    <string name="media_access_label">MONO media controls</string>
 </resources>

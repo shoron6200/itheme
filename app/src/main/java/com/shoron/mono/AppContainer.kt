@@ -10,6 +10,7 @@ import com.shoron.mono.data.LauncherPreferences
 import com.shoron.mono.data.WidgetPreferences
 import com.shoron.mono.lockscreen.LockScreenController
 import com.shoron.mono.lockscreen.LockWallpaperSync
+import com.shoron.mono.media.MediaSessionRepository
 import com.shoron.mono.widgets.WidgetEngine
 import com.shoron.mono.widgets.battery.BatteryMonitor
 import com.shoron.mono.widgets.weather.WeatherRepository
@@ -47,6 +48,7 @@ class AppContainer(context: Context) {
     val widgetEngine = WidgetEngine(widgetPreferences, timeTicker, BatteryMonitor(appContext), weatherRepository)
     val lockScreenController = LockScreenController(appContext, widgetPreferences, applicationScope)
     val lockWallpaperSync = LockWallpaperSync(appContext, wallpaperRepository)
+    val mediaSessions = MediaSessionRepository(appContext)
 
     init {
         // Keep the hourly weather job and cache in step with the weather settings.

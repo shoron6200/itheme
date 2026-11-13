@@ -15,7 +15,12 @@ import com.shoron.mono.widgets.WidgetEngine
 import com.shoron.mono.widgets.clock.ClockSnapshot
 import com.shoron.mono.widgets.weather.WeatherRepository
 import com.shoron.mono.widgets.weather.WeatherSnapshot
+import com.shoron.mono.media.MediaInfo
+import com.shoron.mono.media.MediaSessionRepository
+import com.shoron.mono.widgets.battery.BatteryState
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -29,6 +34,7 @@ class LockViewModel(
     wallpaperRepository: WallpaperRepository,
     preferences: WidgetPreferences,
     private val weatherRepository: WeatherRepository,
+    private val mediaSessions: MediaSessionRepository,
 ) : ViewModel() {
 
     private val whileVisible = SharingStarted.WhileSubscribed(2_000)
@@ -49,6 +55,24 @@ class LockViewModel(
 
     val weather: StateFlow<WeatherSnapshot?> = widgets.weather.stateIn(viewModelScope, whileVisible, null)
 
+    val battery: StateFlow<BatteryState?> = widgets.battery.stateIn(viewModelScope, whileVisible, null)
+
+    private val dismissedMedia = MutableStateFlow<String?>(null)
+
+    /** Active media session, unless the user dismissed this track. Collected only while visible. */
+    val media: StateFlow<MediaInfo?> = combine(mediaSessions.media, dismissedMedia) { info, dismissed ->
+        info?.takeIf { it.key != dismissed }
+    }.stateIn(viewModelScope, whileVisible, null)
+
+    fun dismissMedia() {
+        dismissedMedia.value = media.value?.key
+    }
+
+    fun playPause() = mediaSessions.playPause()
+    fun next() = mediaSessions.next()
+    fun previous() = mediaSessions.previous()
+    fun seekTo(positionMs: Long) = mediaSessions.seekTo(positionMs)
+
     fun onVisible() {
         viewModelScope.launch { weatherRepository.refresh() }
     }
@@ -58,7 +82,7 @@ class LockViewModel(
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MonoApplication
                 val c = app.container
-                LockViewModel(c.widgetEngine, c.wallpaperRepository, c.widgetPreferences, c.weatherRepository)
+                LockViewModel(c.widgetEngine, c.wallpaperRepository, c.widgetPreferences, c.weatherRepository, c.mediaSessions)
             }
         }
     }

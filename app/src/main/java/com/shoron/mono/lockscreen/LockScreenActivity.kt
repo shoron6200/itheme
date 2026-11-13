@@ -18,6 +18,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -59,8 +60,19 @@ class LockScreenActivity : ComponentActivity() {
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
+        // Fully immersive: draw under the camera cutout and hide both status and navigation bars
+        // (a swipe from the edge reveals them temporarily).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes = window.attributes.apply {
+                layoutInDisplayCutoutMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                } else {
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                }
+            }
+        }
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            hide(WindowInsetsCompat.Type.navigationBars())
+            hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
         val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
@@ -132,6 +144,17 @@ private fun LockScreenRoute(onUnlock: () -> Unit) {
     val clock by viewModel.clock.collectAsStateWithLifecycle()
     val weather by viewModel.weather.collectAsStateWithLifecycle()
     val time = viewModel.time.collectAsStateWithLifecycle()
+    val battery by viewModel.battery.collectAsStateWithLifecycle()
+    val media by viewModel.media.collectAsStateWithLifecycle()
+    val mediaActions = remember(viewModel) {
+        MediaActions(
+            playPause = viewModel::playPause,
+            previous = viewModel::previous,
+            next = viewModel::next,
+            seekTo = viewModel::seekTo,
+            dismiss = viewModel::dismissMedia,
+        )
+    }
 
     LifecycleResumeEffect(Unit) {
         viewModel.onVisible()
@@ -146,6 +169,9 @@ private fun LockScreenRoute(onUnlock: () -> Unit) {
         clock = clock,
         time = time,
         weather = weather,
+        battery = battery,
+        media = media,
+        mediaActions = mediaActions,
         onUnlock = onUnlock,
     )
 }

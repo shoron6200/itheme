@@ -2,6 +2,28 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-13 — Lock screen immersive, media card, zigzag rail
+
+- Reference images for this request did not arrive with the message; implemented against the
+  existing design and the drawer rail seen in the original reference video.
+- **Immersive lock**: `systemBars()` hidden with transient-by-swipe behaviour; cutout mode
+  ALWAYS/SHORT_EDGES. Layout box now uses `statusBarsIgnoringVisibility ∪ displayCutout`,
+  which equals the previous `safeDrawing` area (status bar visible, nav bar hidden), so the
+  clock/date positions are unchanged.
+- **Battery** reuses `BatteryIndicator` (new optional status label) and the engine's battery flow.
+- **Media**: `MediaSessionManager.getActiveSessions` needs an enabled NotificationListenerService
+  (Android rule for non-system apps). `MediaAccessService` is an empty listener — no notification
+  reading, no playback service. `MediaSessionRepository.media` is a cold flow collected only while
+  the lock screen is visible; it prefers a playing session, then a paused one, and drops
+  stopped/none/error sessions. Progress is extrapolated from `PlaybackState` and ticks every
+  500 ms only while playing and STARTED. Artwork is downscaled to ≤256 px and cached per source.
+- **Zigzag rail**: equal slots, alternating ±amplitude offset, tap = `animateScrollToItem`,
+  drag = `scrollToItem`; current section from `firstVisibleItemIndex` via `derivedStateOf`.
+- No new dependencies. New manifest entry: notification listener service (user-enabled).
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-13 — Phase 3: widget engine + lock screen
 
 ### Lock screen investigation (no root)
