@@ -38,8 +38,15 @@ Engineering notes, decisions and **verified** build results. Newest first.
 - Added `INTERNET`, `SET_WALLPAPER` (both normal), `SYSTEM_ALERT_WINDOW` (special, optional,
   user-granted). Justified above.
 
-### Build results
-- _Pending GitHub Actions run._
+### Build results (from GitHub Actions)
+- Run #6 (`dee3f5a`, run id 43508200155) — **success** on first attempt: `testDebugUnitTest`
+  (incl. new ClockFormatter, DialGeometry, BatteryState and OpenMeteo tests) passed,
+  `assembleDebug` passed, `lintDebug` completed (report-only), artifact `mono-debug-6`
+  (11.2 MB zip) uploaded.
+- **Not yet verified on a physical device.** Device checks: radial clock seconds/rotation,
+  24h toggle, weather city search + display, battery charging bolt, lock screen after screen
+  off (with and without "Display over other apps"), swipe-up → system PIN/biometric,
+  fingerprint unlock closes MONO lock screen, no lock screen during calls, lock wallpaper sync.
 
 ## 2026-11-13 — Phase 2: ocean visual design
 

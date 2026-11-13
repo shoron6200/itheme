@@ -14,7 +14,7 @@ Phase 3 — **native widget engine + MONO lock screen** (see [CHANGELOG.md](CHAN
 |---|---|---|
 | 1 | Launcher foundation: HOME activity, app list, drawer, pins, settings, CI | built in CI; awaiting device test |
 | 2 | Ocean visual design, wallpaper engine, typography | built in CI; awaiting device test |
-| 3 | Radial/Word clocks, date, battery, weather (Open-Meteo), MONO lock screen | in progress |
+| 3 | Radial/Word clocks, date, battery, weather (Open-Meteo), MONO lock screen | built in CI; awaiting device test |
 | 4 | Weather refinements (location options, alerts) | planned |
 | 5 | Thin Line icon engine | planned |
 | 6 | Gestures and interactions | planned |
