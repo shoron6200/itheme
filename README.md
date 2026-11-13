@@ -12,7 +12,7 @@ Phase 1 — **stable launcher foundation** (see [CHANGELOG.md](CHANGELOG.md) and
 
 | Phase | Scope | State |
 |---|---|---|
-| 1 | Launcher foundation: HOME activity, app list, drawer, pins, settings, CI | in progress |
+| 1 | Launcher foundation: HOME activity, app list, drawer, pins, settings, CI | built in CI; awaiting device test |
 | 2 | Ocean visual design, wallpaper engine, typography | planned |
 | 3 | Clock (incl. radial dial), date and battery widgets | planned |
 | 4 | Weather engine (Open-Meteo, cached) | planned |

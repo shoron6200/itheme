@@ -24,5 +24,13 @@ Engineering notes, decisions and **verified** build results. Newest first.
 ### Permissions
 - None requested. `<queries>` limited to launcher + default-app intents.
 
-### Build results
-- _Pending first GitHub Actions run — results will be recorded here from the actual run._
+### Build results (from GitHub Actions)
+- Run #1 (`e72ebe4`, run id 43462907486) — **failed**: `compileDebugKotlin`, 3 errors in
+  `HomeScreen.kt` (`maxHeight` read inside a nested `Column` scope).
+- Run #2 (`db40f7b`, run id 43463651620) — **success**: `testDebugUnitTest` passed,
+  `assembleDebug` passed, `lintDebug` completed (report-only), artifact `mono-debug-2`
+  (9.8 MB zip) uploaded. One compiler warning: deprecated `TRIM_MEMORY_MODERATE` constant.
+- CI notice: GitHub forces the v4 actions onto Node 24 (Node 20 deprecation warning); to be
+  addressed by bumping action majors in a later phase.
+- **Not yet verified on a physical device.** On-device checks for Phase 1: set as Home, launch
+  apps, search, pin/unpin, reorder in settings, install/uninstall an app while MONO is running.
