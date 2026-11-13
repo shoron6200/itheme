@@ -13,7 +13,7 @@ Phase 2 — **ocean visual design** (see [CHANGELOG.md](CHANGELOG.md) and
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Launcher foundation: HOME activity, app list, drawer, pins, settings, CI | built in CI; awaiting device test |
-| 2 | Ocean visual design, wallpaper engine, typography | in progress |
+| 2 | Ocean visual design, wallpaper engine, typography | built in CI; awaiting device test |
 | 3 | Clock (incl. radial dial), date and battery widgets | planned |
 | 4 | Weather engine (Open-Meteo, cached) | planned |
 | 5 | Thin Line icon engine | planned |

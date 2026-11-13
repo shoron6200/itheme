@@ -23,8 +23,13 @@ Engineering notes, decisions and **verified** build results. Newest first.
 ### Permissions
 - None added. The Android photo picker (`PickVisualMedia`) needs no permission.
 
-### Build results
-- _Pending GitHub Actions run._
+### Build results (from GitHub Actions)
+- Run #4 (`b67f655`, run id 43500820551) — **success** on first attempt: `testDebugUnitTest`
+  (incl. new `WallpaperMathTest`) passed, `assembleDebug` passed, `lintDebug` completed
+  (report-only), artifact `mono-debug-4` (10.4 MB zip) uploaded.
+- **Not yet verified on a physical device.** On-device checks for Phase 2: wallpaper appears
+  behind home, drawer translucency, picking each built-in, importing a camera photo (orientation),
+  drag-to-reposition matches home, dim/monochrome, fonts render (month, script weekday).
 
 ## 2026-11-13 — Phase 1: launcher foundation
 
