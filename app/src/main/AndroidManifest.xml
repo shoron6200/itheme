@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Phase 3: weather from Open-Meteo. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Lock screen: optional "use this wallpaper on Android's lock screen" (normal permission). -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <!-- Lock screen: optional, user-granted in system settings; lets the MONO lock screen
+         appear after any app on Android 10+. Never required for the launcher itself. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <!--
         Package visibility: MONO only needs to see launchable activities and the
         handful of "default app" intents used to pick the first home shortcuts.
@@ -63,6 +71,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".lockscreen.LockScreenActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:taskAffinity="com.shoron.mono.lockscreen"
+            android:theme="@style/Theme.Mono" />
 
         <activity
             android:name=".settings.SettingsActivity"

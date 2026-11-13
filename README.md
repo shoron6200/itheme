@@ -7,15 +7,15 @@ Target device: Realme 9 SE (works on any Android 8.0+ phone).
 
 ## Status
 
-Phase 2 — **ocean visual design** (see [CHANGELOG.md](CHANGELOG.md) and
+Phase 3 — **native widget engine + MONO lock screen** (see [CHANGELOG.md](CHANGELOG.md) and
 [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md)).
 
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Launcher foundation: HOME activity, app list, drawer, pins, settings, CI | built in CI; awaiting device test |
 | 2 | Ocean visual design, wallpaper engine, typography | built in CI; awaiting device test |
-| 3 | Clock (incl. radial dial), date and battery widgets | planned |
-| 4 | Weather engine (Open-Meteo, cached) | planned |
+| 3 | Radial/Word clocks, date, battery, weather (Open-Meteo), MONO lock screen | in progress |
+| 4 | Weather refinements (location options, alerts) | planned |
 | 5 | Thin Line icon engine | planned |
 | 6 | Gestures and interactions | planned |
 | 7 | Personalization | planned |
@@ -38,9 +38,32 @@ Debug builds use the id `com.shoron.mono.debug`, so they install next to future 
 - **Swipe up** on home: app drawer (search, A–Z rail).
 - **Long-press an app**: pin/unpin, app info.
 - **Long-press empty home space**: MONO settings (wallpaper, reorder or remove home apps).
+- **Tap** the clock → alarms, the date/month → calendar, battery → battery usage, weather → refresh.
+- **Settings → Clock & widgets**: Radial digital / Editorial words, 24-hour, seconds, battery,
+  weather location search (Open-Meteo), °F, 3-day forecast.
+- **Settings → Lock screen**: enable the MONO lock screen, position, contrast, preview, and
+  "use this wallpaper on Android's lock screen". See the lock screen notes below.
 - **Settings → Wallpaper**: pick Shoreline / Undertow / Swell or your own photo, drag to
   reposition, adjust dim and monochrome, then Apply.
 - **Back / Home** in the drawer: return to home.
+
+## Lock screen: what is and isn't possible
+
+Android does not allow any app (without root) to replace the secure lock screen or the
+always-on display. MONO therefore:
+
+- shows its own lock screen **on top of** Android's keyguard when the screen turns off
+  (`showWhenLocked`), with live time, seconds, vertical date, weekday and weather;
+- hands every unlock to Android: swipe up → the system PIN / pattern / password / biometric
+  prompt (`requestDismissKeyguard`). Fingerprint unlock closes MONO's screen automatically;
+- never disables the keyguard, never reads notifications, and stays out of the way during calls;
+- can optionally set the selected wallpaper as Android's own lock-screen wallpaper.
+
+Limits: to appear after *other* apps on Android 10+ it needs "Display over other apps"
+(user-granted, optional). It relies on MONO's process being alive (normally true for the Home
+app; no foreground service is used). Notifications, emergency call and camera shortcuts remain
+on Android's lock screen, one swipe away. Some OEM builds may still show their own lock screen
+clock behind the bouncer.
 
 ## Building
 

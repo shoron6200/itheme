@@ -30,7 +30,10 @@ redistribute its wallpapers, icons or widget files. All MONO assets are:
 
 ## Wallpapers
 
-Three original monochrome ocean pieces, generated procedurally (seeded fractal noise, domain
+**Ocean** (default) is the owner-supplied black & white ocean photograph, bundled at the owner's
+request (941×1672, greyscale WebP). Because this repository is public, that image is public too.
+
+Three further original monochrome ocean pieces, generated procedurally (seeded fractal noise, domain
 warping, density-driven foam carving) by `tools/wallpapers/generate.py`:
 
 | Id | Name | Composition |

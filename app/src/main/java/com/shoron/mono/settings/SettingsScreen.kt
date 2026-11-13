@@ -54,7 +54,7 @@ import com.shoron.mono.apps.AppIcon
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.data.PinList
 
-private enum class SettingsPage { Main, Wallpaper }
+private enum class SettingsPage { Main, Wallpaper, Widgets, Lock }
 
 /** Two-page settings flow without a navigation library: main list and wallpaper editor. */
 @Composable
@@ -62,13 +62,25 @@ fun SettingsNavHost(onExit: () -> Unit) {
     var page by rememberSaveable { mutableStateOf(SettingsPage.Main) }
     BackHandler(enabled = page != SettingsPage.Main) { page = SettingsPage.Main }
     when (page) {
-        SettingsPage.Main -> SettingsScreen(onBack = onExit, onOpenWallpaper = { page = SettingsPage.Wallpaper })
+        SettingsPage.Main -> SettingsScreen(
+            onBack = onExit,
+            onOpenWallpaper = { page = SettingsPage.Wallpaper },
+            onOpenWidgets = { page = SettingsPage.Widgets },
+            onOpenLock = { page = SettingsPage.Lock },
+        )
         SettingsPage.Wallpaper -> WallpaperScreen(onBack = { page = SettingsPage.Main })
+        SettingsPage.Widgets -> WidgetsScreen(onBack = { page = SettingsPage.Main })
+        SettingsPage.Lock -> LockSettingsScreen(onBack = { page = SettingsPage.Main })
     }
 }
 
 @Composable
-fun SettingsScreen(onBack: () -> Unit, onOpenWallpaper: () -> Unit) {
+fun SettingsScreen(
+    onBack: () -> Unit,
+    onOpenWallpaper: () -> Unit,
+    onOpenWidgets: () -> Unit,
+    onOpenLock: () -> Unit,
+) {
     val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val pinned by viewModel.pinnedApps.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -139,25 +151,9 @@ fun SettingsScreen(onBack: () -> Unit, onOpenWallpaper: () -> Unit) {
 
         item {
             SectionTitle(stringResource(R.string.settings_appearance))
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = onOpenWallpaper)
-                    .padding(vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_wallpaper),
-                    color = MonoColors.Foreground,
-                    fontSize = 15.sp,
-                    modifier = Modifier.weight(1f),
-                )
-                Icon(
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = null,
-                    tint = MonoColors.Muted,
-                )
-            }
+            NavRow(stringResource(R.string.settings_wallpaper), onOpenWallpaper)
+            NavRow(stringResource(R.string.settings_widgets), onOpenWidgets)
+            NavRow(stringResource(R.string.settings_lock), onOpenLock)
             Spacer(Modifier.height(24.dp))
         }
 
@@ -235,6 +231,20 @@ fun SettingsScreen(onBack: () -> Unit, onOpenWallpaper: () -> Unit) {
                 fontSize = 12.sp,
             )
         }
+    }
+}
+
+@Composable
+private fun NavRow(label: String, onClick: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text = label, color = MonoColors.Foreground, fontSize = 15.sp, modifier = Modifier.weight(1f))
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MonoColors.Muted)
     }
 }
 

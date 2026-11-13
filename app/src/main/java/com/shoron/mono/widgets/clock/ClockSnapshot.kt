@@ -13,6 +13,10 @@ data class ClockSnapshot(
     val hourWord: String,
     val minuteWords: String,
     val dateLine: String,
+    /** Lock-screen vertical date, e.g. "02-NOVEMBER". */
+    val dayMonth: String,
+    /** Short weekday, e.g. "SUN". */
+    val dayShort: String,
 ) {
     companion object {
         fun from(time: LocalDateTime, locale: Locale = Locale.getDefault()): ClockSnapshot {
@@ -27,6 +31,8 @@ data class ClockSnapshot(
                 hourWord = TimeInWords.hour(time.hour),
                 minuteWords = TimeInWords.minutes(time.minute),
                 dateLine = "$shortDay  ${time.dayOfMonth} $shortMonth ${time.year}",
+                dayMonth = time.dayOfMonth.toString().padStart(2, '0') + "-" + month.uppercase(locale),
+                dayShort = shortDay,
             )
         }
     }

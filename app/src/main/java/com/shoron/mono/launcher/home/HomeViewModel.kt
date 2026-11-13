@@ -12,10 +12,14 @@ import com.shoron.mono.apps.AppLauncher
 import com.shoron.mono.apps.AppRepository
 import com.shoron.mono.apps.PinnedApps
 import com.shoron.mono.data.LauncherPreferences
+import com.shoron.mono.data.WidgetSettings
 import com.shoron.mono.wallpaper.WallpaperRepository
 import com.shoron.mono.wallpaper.WallpaperSettings
+import com.shoron.mono.widgets.WidgetEngine
+import com.shoron.mono.widgets.battery.BatteryState
 import com.shoron.mono.widgets.clock.ClockSnapshot
-import com.shoron.mono.widgets.clock.TimeTicker
+import com.shoron.mono.widgets.weather.WeatherRepository
+import com.shoron.mono.widgets.weather.WeatherSnapshot
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,6 +28,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Immutable
 data class HomeUiState(val pinnedApps: List<AppEntry> = emptyList())
@@ -32,31 +37,47 @@ class HomeViewModel(
     appRepository: AppRepository,
     private val preferences: LauncherPreferences,
     private val appLauncher: AppLauncher,
-    timeTicker: TimeTicker,
     wallpaperRepository: WallpaperRepository,
+    widgets: WidgetEngine,
+    private val weatherRepository: WeatherRepository,
 ) : ViewModel() {
 
-    /** `null` until stored settings are read, so the default never flashes before a custom photo. */
-    val wallpaper: StateFlow<WallpaperSettings?> = wallpaperRepository.settings
-        .map<WallpaperSettings, WallpaperSettings?> { it }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), null)
+    private val whileVisible = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS)
 
     val uiState: StateFlow<HomeUiState> =
         combine(appRepository.apps, preferences.pinnedKeys) { apps, keys ->
             HomeUiState(PinnedApps.resolve(apps, keys))
         }
             .distinctUntilChanged()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), HomeUiState())
+            .stateIn(viewModelScope, whileVisible, HomeUiState())
 
-    /** Ticks once per minute only while the home screen is at least STARTED. */
-    val clock: StateFlow<ClockSnapshot> = timeTicker.now
-        .map { ClockSnapshot.from(it) }
-        .distinctUntilChanged()
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS),
-            ClockSnapshot.from(LocalDateTime.now()),
-        )
+    /** `null` until stored settings are read, so the default never flashes before a custom photo. */
+    val wallpaper: StateFlow<WallpaperSettings?> = wallpaperRepository.settings
+        .map<WallpaperSettings, WallpaperSettings?> { it }
+        .stateIn(viewModelScope, whileVisible, null)
+
+    val widgetSettings: StateFlow<WidgetSettings?> = widgets.settings
+        .map<WidgetSettings, WidgetSettings?> { it }
+        .stateIn(viewModelScope, whileVisible, null)
+
+    val clock: StateFlow<ClockSnapshot> =
+        widgets.clock.stateIn(viewModelScope, whileVisible, ClockSnapshot.from(LocalDateTime.now()))
+
+    /** Per-second only while seconds are enabled and the home screen is visible. */
+    val time: StateFlow<LocalTime> = widgets.time.stateIn(viewModelScope, whileVisible, LocalTime.now())
+
+    val battery: StateFlow<BatteryState?> = widgets.battery.stateIn(viewModelScope, whileVisible, null)
+
+    val weather: StateFlow<WeatherSnapshot?> = widgets.weather.stateIn(viewModelScope, whileVisible, null)
+
+    /** Called when the home screen becomes visible: refresh weather if the cache is stale. */
+    fun onVisible() {
+        viewModelScope.launch { weatherRepository.refresh() }
+    }
+
+    fun refreshWeatherNow() {
+        viewModelScope.launch { weatherRepository.refresh(force = true) }
+    }
 
     fun launch(entry: AppEntry): Boolean = appLauncher.launch(entry)
 
@@ -74,11 +95,12 @@ class HomeViewModel(
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MonoApplication
                 val c = app.container
                 HomeViewModel(
-                    c.appRepository,
-                    c.launcherPreferences,
-                    c.appLauncher,
-                    c.timeTicker,
-                    c.wallpaperRepository,
+                    appRepository = c.appRepository,
+                    preferences = c.launcherPreferences,
+                    appLauncher = c.appLauncher,
+                    wallpaperRepository = c.wallpaperRepository,
+                    widgets = c.widgetEngine,
+                    weatherRepository = c.weatherRepository,
                 )
             }
         }

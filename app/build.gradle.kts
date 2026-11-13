@@ -96,6 +96,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
+    // Android's org.json is a stub on the JVM; use the real library for parser tests.
+    testImplementation(libs.org.json)
 }

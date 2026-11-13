@@ -4,6 +4,21 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added — Phase 3: native widget engine + MONO lock screen
+- **Radial Digital clock** (new default): large hour beside a rotating minute dial with a
+  capsule on the current minute, a seconds dot and seconds digits. 24-hour and seconds on by default.
+- **Editorial Word Clock** ("**four**thirty eight") as the alternative style.
+- **Date**: date line, month headline and script weekday; tap to open your calendar.
+- **Weather** from Open-Meteo: temperature, condition, humidity, wind, optional 3-day forecast;
+  city search, °C/°F, cached and refreshed hourly. Tap to refresh.
+- **Battery**: thin-line battery icon with charging bolt and percentage; tap for battery usage.
+- **MONO lock screen** shown over Android's lock screen: big hour, smaller minutes, small
+  seconds, vertical date ("13-NOVEMBER"), weather and weekday typography; adjustable position
+  and contrast; preview; swipe up for Android's secure PIN/biometric unlock.
+- Optional: set the MONO wallpaper as Android's lock-screen wallpaper.
+- Settings → Clock & widgets and Settings → Lock screen.
+- **Ocean** photo wallpaper (supplied by the owner) is now the default wallpaper.
+
 ### Added — Phase 2: ocean visual design
 - Wallpaper engine: MONO draws its own full-screen wallpaper behind the home screen.
 - Three original monochrome ocean wallpapers: Shoreline (default), Undertow, Swell.

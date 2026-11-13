@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoron.mono.R
@@ -30,7 +31,9 @@ import com.shoron.mono.data.PinList
 import com.shoron.mono.data.PinResult
 import com.shoron.mono.launcher.drawer.DrawerScreen
 import com.shoron.mono.launcher.drawer.DrawerViewModel
+import com.shoron.mono.data.WidgetSettings
 import com.shoron.mono.launcher.home.HomeScreen
+import com.shoron.mono.launcher.home.HomeWidgets
 import com.shoron.mono.launcher.home.HomeViewModel
 import com.shoron.mono.wallpaper.WallpaperLayer
 import kotlinx.coroutines.flow.Flow
@@ -67,6 +70,16 @@ fun LauncherRoot(
     val clock by homeViewModel.clock.collectAsStateWithLifecycle()
     val home by homeViewModel.uiState.collectAsStateWithLifecycle()
     val wallpaper by homeViewModel.wallpaper.collectAsStateWithLifecycle()
+    val widgetSettings by homeViewModel.widgetSettings.collectAsStateWithLifecycle()
+    val battery by homeViewModel.battery.collectAsStateWithLifecycle()
+    val weather by homeViewModel.weather.collectAsStateWithLifecycle()
+    // Kept as State (not unwrapped) so second ticks are read only by the clock's draw phase.
+    val time = homeViewModel.time.collectAsStateWithLifecycle()
+
+    LifecycleResumeEffect(Unit) {
+        homeViewModel.onVisible()
+        onPauseOrDispose { }
+    }
 
     val launch: (AppEntry) -> Unit = { entry ->
         if (!homeViewModel.launch(entry)) context.toast(context.getString(R.string.toast_launch_failed))
@@ -79,13 +92,20 @@ fun LauncherRoot(
         wallpaper?.let { WallpaperLayer(it) }
 
         HomeScreen(
-            clock = clock,
+            widgets = HomeWidgets(
+                settings = widgetSettings ?: WidgetSettings(),
+                clock = clock,
+                time = time,
+                battery = battery,
+                weather = weather,
+            ),
             state = home,
             onLaunch = launch,
             onAppInfo = appInfo,
             onUnpin = homeViewModel::unpin,
             onOpenDrawer = { drawerOpen = true },
             onOpenSettings = onOpenSettings,
+            onRefreshWeather = homeViewModel::refreshWeatherNow,
         )
 
         AnimatedVisibility(

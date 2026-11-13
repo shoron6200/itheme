@@ -2,6 +2,45 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-13 — Phase 3: widget engine + lock screen
+
+### Lock screen investigation (no root)
+- Third-party apps cannot replace Android's keyguard or AOD. Device-admin keyguard APIs only
+  *disable* features; `KeyguardManager.disableKeyguard` is deprecated and would weaken security.
+- Chosen: an activity with `showWhenLocked` displayed over the locked keyguard, started on
+  `ACTION_SCREEN_OFF` by a receiver in MONO's process. Unlock is always
+  `requestDismissKeyguard` → system bouncer (PIN/pattern/password/biometric).
+  `ACTION_USER_PRESENT` and an `isKeyguardLocked` check on resume close it after any unlock.
+- Not shown during calls (AudioManager mode check, no phone permission).
+- Background-activity-start rules: on Android 10+ the launch from SCREEN_OFF is only allowed
+  when MONO is in the foreground or the user granted "Display over other apps"
+  (`SYSTEM_ALERT_WINDOW`, optional). Android 15+ tightens this further for apps targeting 35+;
+  the Realme 9 SE is not expected to receive Android 15, but it is a known limit.
+- No foreground service: if the OS kills MONO's process, the glance is skipped until MONO runs.
+- Optional `SET_WALLPAPER` sync renders the current wallpaper (crop, dim, greyscale) onto the
+  system lock screen so the secure bouncer matches.
+
+### Widget decisions
+- Single `WidgetEngine` feeds home and lock screen (no duplicated widget logic or settings).
+- Defaults per request: Radial Digital, 24-hour, seconds on.
+- Seconds: cold per-second flow, only while visible and enabled; consumers read it in draw
+  phase / a leaf composable. Minute data stays on TIME_TICK (time-zone changes handled there,
+  and `LocalTime.now()` per tick picks up zone changes immediately).
+- Weather: Open-Meteo forecast + geocoding, `HttpURLConnection` + platform `org.json`
+  (JVM tests use the `org.json:json` artifact). WorkManager 2.9.1 hourly job with constraints.
+- New dependencies: `androidx.work:work-runtime-ktx:2.9.1`; test-only `org.json:json:20240303`.
+
+### Wallpaper
+- Owner-supplied ocean photo added as `builtin:ocean` and made the default; existing wallpaper
+  engine untouched apart from a `decodeSoftware()` helper used by lock-wallpaper sync.
+
+### Permissions
+- Added `INTERNET`, `SET_WALLPAPER` (both normal), `SYSTEM_ALERT_WINDOW` (special, optional,
+  user-granted). Justified above.
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-13 — Phase 2: ocean visual design
 
 ### Decisions

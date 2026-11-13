@@ -33,6 +33,7 @@
     <string name="settings_wallpaper">Wallpaper</string>
     <string name="settings_licenses">Fonts: Outfit © The Outfit Project Authors and Sacramento © Astigmatic, both under the SIL Open Font License 1.1. Wallpapers are original MONO artwork.</string>
 
+    <string name="wallpaper_ocean">Ocean</string>
     <string name="wallpaper_shoreline">Shoreline</string>
     <string name="wallpaper_undertow">Undertow</string>
     <string name="wallpaper_swell">Swell</string>
@@ -45,4 +46,41 @@
     <string name="wallpaper_apply">Apply</string>
     <string name="wallpaper_applied">Wallpaper applied</string>
     <string name="wallpaper_import_failed">Couldn\'t open that image</string>
+
+    <string name="weather_set_location">Set a weather location in MONO settings</string>
+    <string name="weather_loading">Updating weather…</string>
+
+    <string name="settings_widgets">Clock &amp; widgets</string>
+    <string name="settings_lock">Lock screen</string>
+    <string name="widgets_clock_style">Clock style</string>
+    <string name="widgets_clock_radial">Radial digital</string>
+    <string name="widgets_clock_words">Editorial words</string>
+    <string name="widgets_24h">24-hour time</string>
+    <string name="widgets_seconds">Show seconds</string>
+    <string name="widgets_battery">Battery indicator</string>
+    <string name="widgets_weather">Weather</string>
+    <string name="widgets_weather_enabled">Show weather</string>
+    <string name="widgets_forecast">Show 3-day forecast</string>
+    <string name="widgets_fahrenheit">Fahrenheit</string>
+    <string name="widgets_location">Location</string>
+    <string name="widgets_location_none">No location set</string>
+    <string name="widgets_search_hint">Search city</string>
+    <string name="widgets_search">Search</string>
+    <string name="widgets_no_results">No places found (check your connection)</string>
+    <string name="widgets_weather_source">Weather data by Open-Meteo.com (CC BY 4.0)</string>
+
+    <string name="lock_enable">MONO lock screen</string>
+    <string name="lock_enable_hint">Shows the MONO clock over Android\'s lock screen. Swipe up to reach your normal PIN, pattern or fingerprint unlock.</string>
+    <string name="lock_overlay">Display over other apps</string>
+    <string name="lock_overlay_granted">Allowed: the lock screen can appear after any app.</string>
+    <string name="lock_overlay_missing">Not allowed: the lock screen only appears when MONO\'s home screen was open. Tap to allow.</string>
+    <string name="lock_preview">Preview</string>
+    <string name="lock_position_x">Horizontal position</string>
+    <string name="lock_position_y">Vertical position</string>
+    <string name="lock_contrast">Contrast</string>
+    <string name="lock_sync_wallpaper">Use this wallpaper on Android\'s lock screen</string>
+    <string name="lock_sync_done">Lock screen wallpaper updated</string>
+    <string name="lock_sync_failed">Couldn\'t set the lock screen wallpaper</string>
+    <string name="lock_limits">Android does not let apps replace the secure lock screen or the always-on display. MONO\'s lock screen sits on top of it and never bypasses your PIN, password or biometrics.</string>
+    <string name="lock_swipe_hint">swipe up to unlock</string>
 </resources>

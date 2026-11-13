@@ -58,6 +58,12 @@ class WallpaperRepository(
         return bitmap.asImageBitmap().also { cache.put(key, it) }
     }
 
+    /** Software (CPU-readable) decode for compositing, e.g. the system lock-screen wallpaper. */
+    suspend fun decodeSoftware(settings: WallpaperSettings, widthPx: Int, heightPx: Int): Bitmap? =
+        withContext(Dispatchers.IO) {
+            runCatching { decode(sourceOf(settings), widthPx, heightPx, software = true) }.getOrNull()
+        }
+
     suspend fun save(settings: WallpaperSettings) {
         preferences.save(settings)
         withContext(Dispatchers.IO) { deleteCustomFilesExcept(settings.customVersion.takeIf { settings.isCustom }) }
@@ -108,15 +114,15 @@ class WallpaperRepository(
         return Source.Resource(builtIn.resId)
     }
 
-    private fun decode(source: Source, widthPx: Int, heightPx: Int): Bitmap? =
+    private fun decode(source: Source, widthPx: Int, heightPx: Int, software: Boolean = false): Bitmap? =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val decoderSource = when (source) {
                 is Source.Resource -> ImageDecoder.createSource(appContext.resources, source.resId)
                 is Source.FileSource -> ImageDecoder.createSource(source.file)
             }
-            decodeScaled(decoderSource) { w, h -> WallpaperMath.coverSize(w, h, widthPx, heightPx) }
+            decodeScaled(decoderSource, software) { w, h -> WallpaperMath.coverSize(w, h, widthPx, heightPx) }
         } else {
-            decodeLegacy(widthPx, heightPx, hardware = true) {
+            decodeLegacy(widthPx, heightPx, hardware = !software) {
                 when (source) {
                     is Source.Resource -> appContext.resources.openRawResource(source.resId)
                     is Source.FileSource -> source.file.inputStream()
