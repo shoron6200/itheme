@@ -31,8 +31,12 @@ Engineering notes, decisions and **verified** build results. Newest first.
   reflection (EXPAND_STATUS_BAR, normal permission); falls back to the quick panel if blocked.
 - Rail: per-letter `graphicsLayer` reading finger Y + intensity `Animatable`; `RailMath` tested.
 
-### Build results
-- _Pending GitHub Actions run._
+### Build results (from GitHub Actions)
+- Run #10 (`9e3df64`, run id 43558862542) — **success** on first attempt: `testDebugUnitTest`
+  (incl. new `HomeLayoutTest`, `RailMathTest`) passed, `assembleDebug` passed, `lintDebug`
+  completed (report-only), artifact `mono-debug-10` (11.3 MB zip) uploaded.
+- **Not yet verified on a physical device** (lock → authenticate → home flow, gestures,
+  edit-mode reorder, rail animation need on-device checks).
 
 ## 2026-11-13 — Lock screen immersive, media card, zigzag rail
 
