@@ -21,8 +21,11 @@ Engineering notes, decisions and **verified** build results. Newest first.
   drag = `scrollToItem`; current section from `firstVisibleItemIndex` via `derivedStateOf`.
 - No new dependencies. New manifest entry: notification listener service (user-enabled).
 
-### Build results
-- _Pending GitHub Actions run._
+### Build results (from GitHub Actions)
+- Run #8 (`38f54d2`, run id 43514489468) — **success** on first attempt: `testDebugUnitTest`
+  (incl. new `MediaInfoTest`) passed, `assembleDebug` passed, `lintDebug` completed
+  (report-only), artifact `mono-debug-8` (11.2 MB zip) uploaded.
+- **Not yet verified on a physical device.**
 
 ## 2026-11-13 — Phase 3: widget engine + lock screen
 
