@@ -21,8 +21,16 @@ Engineering notes, decisions and **verified** build results. Newest first.
 - Artwork: drawn by hand as original geometric outlines (reviewed via a rendered contact
   sheet); no raster or AI-generated images, no official logo files.
 
-### Build results
-- _Pending GitHub Actions run._
+### Build results (from GitHub Actions)
+- Run #12 (`9afe2ed`, fingerprint/camera-band/drawer fixes) — **success**.
+- Run #13 (`c273925`, Thin Line icon engine) — **success**: icon validation (`--check`) passed,
+  unit tests (incl. `IconMatcherTest`, `IconManifestTest`, `CutoutMathTest`) passed, debug APK built.
+- Run #14 (`3ffb238`, final build) — **success**: debug APK `mono-debug-14` and the final
+  release APK `MONO-final-14` (`MONO-1.0.14.apk`, R8-optimised, ~2.1 MB zip). `apksigner`
+  shows it signed with the temporary CI debug key ("CN=Android Debug") because the `MONO_*`
+  secrets are not set yet.
+- **Not yet verified on a physical device** (icon rendering/mapping on Realme, release build
+  behaviour after R8).
 
 ## 2026-11-14 — Fingerprint unlock, camera band, drawer threshold
 
