@@ -4,6 +4,13 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Fixed — follow-up
+- Fingerprint unlock now closes the MONO lock screen and opens MONO home automatically.
+- Home top row (date · battery) sits in the camera band like a status bar: on the same line as
+  the punch-hole camera, starting after it with clear space; battery aligned on the right.
+  Lock-screen battery uses the same band.
+- A short, light upward swipe now opens the app drawer (≈50dp or a gentle flick).
+
 ### Fixed
 - After unlocking from the MONO lock screen (PIN/password/pattern, fingerprint or face), MONO
   now goes straight to its home screen — no second swipe. The lock screen no longer re-opens

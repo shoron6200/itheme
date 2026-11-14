@@ -2,6 +2,24 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-14 — Fingerprint unlock, camera band, drawer threshold
+
+- **Fingerprint root cause**: `ACTION_USER_PRESENT` is broadcast by SystemUI, which runs as an
+  app uid. Registered with `RECEIVER_NOT_EXPORTED` (Android 13+), the receiver never got it, so
+  after a fingerprint unlock the MONO lock screen stayed up. Now `RECEIVER_EXPORTED` (safe: it
+  is a protected broadcast). Safety net: while the lock screen is RESUMED, check
+  `isKeyguardLocked` every 250 ms and `goHome()` once unlocked; stops on pause/screen off.
+- **Top band**: `CutoutMath.band()` classifies top cutouts into band top/height and left/right
+  obstacles (left third / right third). Home `TopRow` is one line centred in that band; the date
+  is shifted to start 14dp after a left punch-hole; battery shifted before a right one.
+  Previously the date was pushed *below* the camera, wasting the band.
+- **Drawer**: drag maps half a screen of travel to fully open; opens past 9 % (~50dp) or on an
+  upward release > 350 px/s; drag cancel (system navigation gesture pilfering the pointer)
+  snaps closed. The bottom system gesture zone stays Android's — it cannot be overridden.
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-14 — Unlock fix, status bar, rail animation, Phase 5
 
 ### Unlock → home fix

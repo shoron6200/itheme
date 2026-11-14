@@ -168,7 +168,8 @@ fun HomeScreen(
                             direction == 1 && total > swipeDownThresholdPx -> current.onSwipeDown()
                         }
                     },
-                    onDragCancel = { if (direction == -1) current.onDrawerRelease(0f) },
+                    // Cancelled (e.g. Android's navigation gesture took over): snap closed.
+                    onDragCancel = { if (direction == -1) current.onDrawerRelease(Float.MAX_VALUE) },
                 )
             }
             // Top is handled per side against the cutout (status bar is hidden).
@@ -231,12 +232,23 @@ class HomeActions(
 @Composable
 private fun TopRow(widgets: HomeWidgets, metrics: LayoutMetrics, cutout: TopCutout) {
     val context = LocalContext.current
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+    // A slim line in the camera band (where the hidden status bar was). The date starts after
+    // a left punch-hole camera with clear space around it; the battery avoids a right one.
+    val clearance = 14.dp
+    val dateShift = (cutout.leftEnd + clearance - metrics.gutter).coerceAtLeast(0.dp)
+    val batteryShift = (cutout.rightStart + clearance - metrics.gutter / 2).coerceAtLeast(0.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = cutout.bandTop)
+            .height(cutout.bandHeight),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         DateLine(
             widgets.clock,
             metrics,
             Modifier
-                .padding(top = cutout.left + 12.dp)
+                .padding(start = dateShift)
                 .noRippleClick { SystemShortcuts.openCalendar(context) },
         )
         Spacer(Modifier.weight(1f))
@@ -250,7 +262,7 @@ private fun TopRow(widgets: HomeWidgets, metrics: LayoutMetrics, cutout: TopCuto
                     shadow = Legible,
                 ),
                 modifier = Modifier
-                    .padding(top = cutout.right + 10.dp)
+                    .padding(end = batteryShift)
                     .noRippleClick { SystemShortcuts.openBatteryUsage(context) },
             )
         }

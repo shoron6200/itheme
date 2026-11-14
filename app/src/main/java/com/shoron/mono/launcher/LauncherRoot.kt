@@ -63,6 +63,15 @@ import kotlinx.coroutines.launch
 
 private val DrawerSpring = spring<Float>(dampingRatio = 0.92f, stiffness = 420f)
 
+/** Fraction of the screen height the finger travels to open the drawer fully. */
+private const val DRAWER_TRAVEL = 0.5f
+
+/** Released past this progress (~50dp on a 20:9 phone) → opens. */
+private const val DRAWER_OPEN_AT = 0.09f
+
+/** Upward release velocity that opens regardless of distance (px/s). */
+private const val DRAWER_FLING_PX_S = 350f
+
 @Composable
 fun LauncherRoot(
     homePresses: Flow<Unit>,
@@ -152,12 +161,16 @@ fun LauncherRoot(
                 settleDrawer(true)
             },
             onDrawerDrag = { delta ->
-                scope.launch { drawer.snapTo((drawer.value - delta / heightPx[0]).coerceIn(0f, 1f)) }
+                // Half a screen of finger travel opens it fully, so short swipes feel responsive.
+                scope.launch {
+                    drawer.snapTo((drawer.value - delta / (heightPx[0] * DRAWER_TRAVEL)).coerceIn(0f, 1f))
+                }
             },
             onDrawerRelease = { velocity ->
-                val flingOpen = velocity < -900f
-                val flingClose = velocity > 900f
-                settleDrawer(flingOpen || (!flingClose && drawer.value > 0.3f))
+                // A light flick or a short swipe (≈ 50dp) is enough; a downward flick cancels.
+                val flingOpen = velocity < -DRAWER_FLING_PX_S
+                val flingClose = velocity > DRAWER_FLING_PX_S
+                settleDrawer(flingOpen || (!flingClose && drawer.value > DRAWER_OPEN_AT))
             },
             onSwipeDown = {
                 when (homeViewModel.homeLayout.value.swipeDownAction) {

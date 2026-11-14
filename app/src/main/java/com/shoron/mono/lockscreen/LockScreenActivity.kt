@@ -22,7 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoron.mono.core.theme.MonoTheme
@@ -77,11 +82,26 @@ class LockScreenActivity : ComponentActivity() {
             hide(WindowInsetsCompat.Type.systemBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+        // USER_PRESENT is sent by SystemUI (an app uid, not the system uid), so a NOT_EXPORTED
+        // receiver never gets it on Android 13+ — the root cause of the extra swipe after a
+        // fingerprint unlock. It is a protected broadcast (only the platform can send it), so
+        // an exported receiver cannot be spoofed by other apps.
         val filter = IntentFilter(Intent.ACTION_USER_PRESENT)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(unlockedReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            registerReceiver(unlockedReceiver, filter, Context.RECEIVER_EXPORTED)
         } else {
             registerReceiver(unlockedReceiver, filter)
+        }
+        // Safety net for OEM builds that delay or drop USER_PRESENT: while this screen is
+        // resumed (screen on), check the keyguard a few times a second and leave as soon as the
+        // phone is unlocked. Stops automatically when paused or when the screen turns off.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    if (!preview && power.isInteractive && !keyguard.isKeyguardLocked) goHome()
+                    delay(UNLOCK_CHECK_MS)
+                }
+            }
         }
         // Back never skips the lock; in preview it simply closes.
         onBackPressedDispatcher.addCallback(this) { if (preview) finish() }
@@ -173,6 +193,7 @@ class LockScreenActivity : ComponentActivity() {
 
     companion object {
         private const val EXTRA_PREVIEW = "preview"
+        private const val UNLOCK_CHECK_MS = 250L
 
         /** True while the MONO lock screen is on screen; prevents duplicate launches. */
         @Volatile

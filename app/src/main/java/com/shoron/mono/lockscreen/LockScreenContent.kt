@@ -58,6 +58,7 @@ import com.shoron.mono.core.design.rememberLayoutMetrics
 import com.shoron.mono.core.design.rememberTopCutout
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.wrapContentHeight
 import com.shoron.mono.core.design.verticalText
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.core.theme.Outfit
@@ -139,7 +140,9 @@ fun LockScreenContent(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
-                    .padding(top = cutout.right + 10.dp, end = 20.dp),
+                    .padding(top = cutout.bandTop, end = 20.dp + cutout.rightStart)
+                    .height(cutout.bandHeight)
+                    .wrapContentHeight(Alignment.CenterVertically),
             )
         }
 
