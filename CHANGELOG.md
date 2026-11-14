@@ -4,6 +4,11 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added — Final MONO build
+- Every CI build now also produces the final app, **MONO** (`com.shoron.mono`, version
+  1.0.<build>), R8-optimised, as the `MONO-final-<n>` artifact. Signed with the MONO release key
+  when the four `MONO_*` repository secrets are set (stable updates), otherwise with a temporary key.
+
 ### Added — Thin Line icon engine
 - 20 original MONO Thin Line icons (WhatsApp, Telegram, Chrome, YouTube, Spotify, Instagram,
   Facebook, Messenger, Gmail, Maps, Photos, Camera, Phone, Messages, Settings, Play Store,

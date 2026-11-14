@@ -21,7 +21,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = (findProperty("monoVersionCode") as String?)?.toInt() ?: 1
-        versionName = (findProperty("monoVersionName") as String?) ?: "0.1.0"
+        versionName = (findProperty("monoVersionName") as String?) ?: "1.0.0"
     }
 
     signingConfigs {
@@ -48,7 +48,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.findByName("release")
+            // Real MONO key from CI secrets when configured; otherwise the build machine's debug
+            // key so the final APK is still installable (updates then need a reinstall).
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             resValue("string", "app_name", "MONO")
         }
     }
