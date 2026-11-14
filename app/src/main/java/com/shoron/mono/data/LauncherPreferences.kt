@@ -39,6 +39,7 @@ class LauncherPreferences(context: Context) {
                 showLabels = p[SHOW_LABELS] ?: d.showLabels,
                 iconSize = p[ICON_SIZE]?.let { runCatching { IconSize.valueOf(it) }.getOrNull() } ?: d.iconSize,
                 showRecents = p[SHOW_RECENTS] ?: d.showRecents,
+                thinLineIcons = p[THIN_ICONS] ?: d.thinLineIcons,
             )
         }
         .distinctUntilChanged()
@@ -58,12 +59,14 @@ class LauncherPreferences(context: Context) {
                 showLabels = p[SHOW_LABELS] ?: d.showLabels,
                 iconSize = p[ICON_SIZE]?.let { runCatching { IconSize.valueOf(it) }.getOrNull() } ?: d.iconSize,
                 showRecents = p[SHOW_RECENTS] ?: d.showRecents,
+                thinLineIcons = p[THIN_ICONS] ?: d.thinLineIcons,
             )
             val next = transform(current)
             p[SWIPE_DOWN] = next.swipeDownAction.name
             p[SHOW_LABELS] = next.showLabels
             p[ICON_SIZE] = next.iconSize.name
             p[SHOW_RECENTS] = next.showRecents
+            p[THIN_ICONS] = next.thinLineIcons
         }
     }
 
@@ -129,5 +132,6 @@ class LauncherPreferences(context: Context) {
         val SHOW_LABELS = booleanPreferencesKey("show_labels")
         val ICON_SIZE = stringPreferencesKey("icon_size")
         val SHOW_RECENTS = booleanPreferencesKey("show_recents")
+        val THIN_ICONS = booleanPreferencesKey("thin_line_icons")
     }
 }

@@ -8,6 +8,9 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shoron.mono.icons.LocalThemedIcons
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -33,9 +36,12 @@ class LauncherActivity : ComponentActivity() {
         val container = monoContainer
         setContent {
             MonoTheme {
+                val themedIcons by container.visibleThemedIcons
+                    .collectAsStateWithLifecycle(initialValue = container.iconRepository.themedIcons.value)
                 CompositionLocalProvider(
                     LocalIconLoader provides container.appRepository,
                     LocalWallpaperLoader provides container.wallpaperRepository,
+                    LocalThemedIcons provides themedIcons,
                 ) {
                     LauncherRoot(
                         homePresses = homePresses,

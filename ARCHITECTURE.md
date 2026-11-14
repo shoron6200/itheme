@@ -20,7 +20,8 @@ com.shoron.mono
 │   └── battery      BatteryState, BatteryMonitor, BatteryIndicator
 ├── lockscreen       LockScreenActivity, LockScreenContent, LockViewModel,
 │                    LockScreenController (SCREEN_OFF), LockWallpaperSync
-├── icons            (Phase 5 — Thin Line icon engine)
+├── icons            IconSpec, IconMatcher, IconRepository, LocalThemedIcons,
+│                    generated/IconManifest (from design/icons via tools/icons/build_icons.py)
 ├── wallpaper        WallpaperSettings, WallpaperCatalog, WallpaperMath, WallpaperPreferences,
 │                    WallpaperRepository (decode/import), WallpaperImage/Layer, WallpaperViewModel
 ├── apps             AppEntry, AppRepository, AppLauncher, AppSearch, IconCache, AppIcon,

@@ -119,4 +119,8 @@
     <string name="home_show_recents">Recent apps in drawer</string>
     <string name="home_clear_recents">Clear recent apps</string>
     <string name="home_gestures_note">Long-press empty space on the home screen to rearrange, remove or add apps. Recent apps only include apps opened from MONO.</string>
+
+    <string name="icons_title">Icons</string>
+    <string name="icons_thin_line">MONO Thin Line icons</string>
+    <string name="icons_summary">%1$d apps use Thin Line icons · %2$d keep their original icon (tap to list)</string>
 </resources>

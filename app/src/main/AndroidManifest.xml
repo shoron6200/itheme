@@ -42,6 +42,17 @@
         <intent>
             <action android:name="android.settings.SETTINGS" />
         </intent>
+        <!-- Icon roles: default clock, calendar and camera apps get the matching Thin Line icon. -->
+        <intent>
+            <action android:name="android.intent.action.SHOW_ALARMS" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.APP_CALENDAR" />
+        </intent>
+        <intent>
+            <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
+        </intent>
     </queries>
 
     <application

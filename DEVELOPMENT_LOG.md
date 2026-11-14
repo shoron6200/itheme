@@ -2,6 +2,28 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-14 — Thin Line icon engine
+
+- **Pipeline**: `design/icons/svg/*.svg` + `manifest.json` → `tools/icons/build_icons.py` →
+  `res/drawable/ic_mono_*.xml` (VectorDrawable, shapes converted to path data) +
+  `icons/generated/IconManifest.kt`. The script enforces the style (48 canvas, white round
+  strokes 1.5–2.5, dots only as fills, 2..46 safe area, allowed elements, absolute paths),
+  manifest integrity (unique names/packages, valid syntax, known roles, svg ↔ manifest) and
+  freshness (`--check` in CI before unit tests). Negative cases verified locally (bad SVG with
+  wrong canvas/colour/width/caps/text element and a hand-edited generated file both fail).
+- **Matching** (`IconMatcher`, JVM-tested): exact component → package or current role holder;
+  label hints only when a package has several launcher activities (e.g. Phone vs Contacts).
+  Roles from `DefaultAppResolver.rolePackages()` (needs `<queries>` for SHOW_ALARMS,
+  APP_CALENDAR, STILL_IMAGE_CAMERA).
+- **Runtime**: `IconRepository.themedIcons` recomputed only when the app list changes;
+  provided via `LocalThemedIcons`; `AppIcon` draws the vector (tinted) or falls back to the
+  cached desaturated bitmap. Toggle persisted in DataStore (`thin_line_icons`).
+- Artwork: drawn by hand as original geometric outlines (reviewed via a rendered contact
+  sheet); no raster or AI-generated images, no official logo files.
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-14 — Fingerprint unlock, camera band, drawer threshold
 
 - **Fingerprint root cause**: `ACTION_USER_PRESENT` is broadcast by SystemUI, which runs as an

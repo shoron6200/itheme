@@ -9,6 +9,9 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.shoron.mono.icons.LocalThemedIcons
 import com.shoron.mono.apps.LocalIconLoader
 import com.shoron.mono.wallpaper.LocalWallpaperLoader
 import com.shoron.mono.core.theme.MonoTheme
@@ -25,9 +28,12 @@ class SettingsActivity : ComponentActivity() {
         val container = monoContainer
         setContent {
             MonoTheme {
+                val themedIcons by container.visibleThemedIcons
+                    .collectAsStateWithLifecycle(initialValue = container.iconRepository.themedIcons.value)
                 CompositionLocalProvider(
                     LocalIconLoader provides container.appRepository,
                     LocalWallpaperLoader provides container.wallpaperRepository,
+                    LocalThemedIcons provides themedIcons,
                 ) {
                     SettingsNavHost(onExit = ::finish)
                 }

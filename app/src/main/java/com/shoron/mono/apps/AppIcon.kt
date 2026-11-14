@@ -16,10 +16,26 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shoron.mono.core.design.MonoIconFilter
 import com.shoron.mono.core.theme.MonoColors
+import com.shoron.mono.icons.LocalThemedIcons
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+
+private val ThinLineTint = ColorFilter.tint(MonoColors.Foreground)
 
 /** Lazily loaded, cached, monochrome app icon. */
 @Composable
 fun AppIcon(entry: AppEntry, size: Dp, modifier: Modifier = Modifier) {
+    val themed = LocalThemedIcons.current[entry.key]
+    if (themed != null) {
+        // MONO Thin Line vector (48-unit canvas), tinted to the foreground colour.
+        Image(
+            painter = painterResource(themed),
+            contentDescription = null,
+            modifier = modifier.size(size),
+            colorFilter = ThinLineTint,
+        )
+        return
+    }
     val loader = LocalIconLoader.current
     val sizePx = with(LocalDensity.current) { size.roundToPx() }
     val bitmap by produceState<ImageBitmap?>(loader.peek(entry, sizePx), entry.key, sizePx) {

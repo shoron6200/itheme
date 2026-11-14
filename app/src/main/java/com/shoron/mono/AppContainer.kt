@@ -7,6 +7,7 @@ import com.shoron.mono.apps.DefaultAppResolver
 import com.shoron.mono.apps.DefaultPins
 import com.shoron.mono.apps.IconCache
 import com.shoron.mono.data.LauncherPreferences
+import com.shoron.mono.icons.IconRepository
 import com.shoron.mono.data.WidgetPreferences
 import com.shoron.mono.lockscreen.LockScreenController
 import com.shoron.mono.lockscreen.LockWallpaperSync
@@ -20,6 +21,9 @@ import com.shoron.mono.widgets.clock.TimeTicker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -42,6 +46,13 @@ class AppContainer(context: Context) {
     val timeTicker = TimeTicker(appContext)
     val wallpaperRepository = WallpaperRepository(appContext, WallpaperPreferences(appContext))
     private val defaultAppResolver = DefaultAppResolver(appContext)
+    val iconRepository = IconRepository(appRepository, defaultAppResolver, applicationScope)
+
+    /** Thin-line icons to show, or none when the user chose original icons. */
+    val visibleThemedIcons: Flow<Map<String, Int>> =
+        combine(iconRepository.themedIcons, launcherPreferences.homeLayout) { icons, layout ->
+            if (layout.thinLineIcons) icons else emptyMap()
+        }.distinctUntilChanged()
 
     val widgetPreferences = WidgetPreferences(appContext)
     val weatherRepository = WeatherRepository(appContext, widgetPreferences)

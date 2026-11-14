@@ -28,6 +28,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Validate icon library (SVG rules, manifest, generated files)
+        run: python3 tools/icons/build_icons.py --check
+
       - name: Unit tests
         run: ./gradlew --no-daemon testDebugUnitTest
 

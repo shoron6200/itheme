@@ -16,7 +16,7 @@ Phase 3 — **native widget engine + MONO lock screen** (see [CHANGELOG.md](CHAN
 | 2 | Ocean visual design, wallpaper engine, typography | built in CI; awaiting device test |
 | 3 | Radial/Word clocks, date, battery, weather (Open-Meteo), MONO lock screen | built in CI; awaiting device test |
 | 4 | Weather refinements (location options, alerts) | planned |
-| 5 | Thin Line icon engine | planned |
+| 5 | Thin Line icon engine (20 original icons, manifest, CI validation) | built in CI; awaiting device test |
 | 6 | Gestures and interactions | planned |
 | 7 | Personalization | planned |
 | 8 | Performance and device testing | planned |

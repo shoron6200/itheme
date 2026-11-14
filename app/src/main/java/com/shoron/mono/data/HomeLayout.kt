@@ -13,6 +13,7 @@ data class HomeLayout(
     val showLabels: Boolean = true,
     val iconSize: IconSize = IconSize.Medium,
     val showRecents: Boolean = true,
+    val thinLineIcons: Boolean = true,
 )
 
 /** Pure most-recently-used list operations (JVM-tested). */

@@ -4,6 +4,16 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added — Thin Line icon engine
+- 20 original MONO Thin Line icons (WhatsApp, Telegram, Chrome, YouTube, Spotify, Instagram,
+  Facebook, Messenger, Gmail, Maps, Photos, Camera, Phone, Messages, Settings, Play Store,
+  Drive, Files, Calendar, Clock) on home, drawer, recents, quick panel and settings.
+- Package, exact-activity and system-role mapping (your default dialer, SMS, camera, clock,
+  calendar and settings apps get the right icon even on Realme/ColorOS).
+- Apps without a Thin Line icon keep their original (monochrome) icon.
+- Settings → Home & gestures → Icons: toggle Thin Line icons; list apps still missing one.
+- Icon size setting applies to Thin Line icons too.
+
 ### Fixed — follow-up
 - Fingerprint unlock now closes the MONO lock screen and opens MONO home automatically.
 - Home top row (date · battery) sits in the camera band like a status bar: on the same line as
