@@ -19,6 +19,12 @@ object PinList {
             else -> (keys + key) to PinResult.Pinned
         }
 
+    /** Re-inserts a removed pin at its old position (clamped), unless already present or full. */
+    fun restore(keys: List<String>, key: String, index: Int, max: Int = MAX_PINS): List<String> {
+        if (key in keys || keys.size >= max) return keys
+        return keys.toMutableList().apply { add(index.coerceIn(0, size), key) }
+    }
+
     fun move(keys: List<String>, key: String, delta: Int): List<String> {
         val from = keys.indexOf(key)
         if (from < 0) return keys

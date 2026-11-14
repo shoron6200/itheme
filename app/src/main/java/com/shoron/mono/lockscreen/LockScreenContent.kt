@@ -55,6 +55,9 @@ import com.shoron.mono.R
 import com.shoron.mono.core.design.LayoutMetrics
 import com.shoron.mono.core.design.LegibleShadow
 import com.shoron.mono.core.design.rememberLayoutMetrics
+import com.shoron.mono.core.design.rememberTopCutout
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
 import com.shoron.mono.core.design.verticalText
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.core.theme.Outfit
@@ -123,6 +126,23 @@ fun LockScreenContent(
                     ),
                 ),
         )
+        // Subtle battery at the very top edge (status bar is hidden). It sits below a camera
+        // cutout only if one is on the right half of the screen. Outside the layout box below,
+        // so the clock and date keep their exact positions.
+        val cutout = rememberTopCutout()
+        battery?.let {
+            BatteryIndicator(
+                state = it,
+                textStyle = TextStyle(fontFamily = Outfit, fontSize = 11.sp, letterSpacing = 0.5.sp),
+                color = MonoColors.Muted,
+                showStatusLabel = true,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+                    .padding(top = cutout.right + 10.dp, end = 20.dp),
+            )
+        }
+
         // Same layout box as before going immersive: the status-bar height is still reserved
         // (ignoring visibility), so the clock and date keep their exact positions.
         BoxWithConstraints(
@@ -140,19 +160,6 @@ fun LockScreenContent(
                 metrics = metrics,
                 modifier = Modifier.offset(x = maxWidth * lock.textX, y = maxHeight * lock.textY),
             )
-            // Subtle battery in the corner the hidden status bar used to occupy.
-            battery?.let {
-                BatteryIndicator(
-                    state = it,
-                    textStyle = TextStyle(fontFamily = Outfit, fontSize = 11.sp, letterSpacing = 0.5.sp),
-                    color = MonoColors.Muted,
-                    showStatusLabel = true,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 6.dp, end = 20.dp),
-                )
-            }
-
             // Now-playing card: hidden unless a media session is active.
             val lastMedia = remember { mutableStateOf<MediaInfo?>(null) }
             if (media != null) lastMedia.value = media

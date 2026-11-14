@@ -4,6 +4,26 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Fixed
+- After unlocking from the MONO lock screen (PIN/password/pattern, fingerprint or face), MONO
+  now goes straight to its home screen — no second swipe. The lock screen no longer re-opens
+  on itself when the screen times out while it is showing.
+
+### Added — Phase 5: interactions & motion
+- Home screen hides the system status bar (swipe from the top edge reveals it); date and battery
+  move up to the top edge, below the camera cutout only on its side.
+- Lock screen battery moved up to the top edge; clock/date layout unchanged.
+- App drawer follows the finger when swiping up, settles with a spring; home fades/scales behind it.
+- Swipe down on home: Quick actions (search, recent apps, Internet, Bluetooth, torch, camera,
+  notifications, settings), Search, Notification shade, or nothing — configurable.
+- Long-press empty home space: edit mode — drag to reorder, × to remove, Undo remove,
+  Add apps, Settings, Done. Long-press menu gains "Edit home".
+- Press-in feedback on app rows and a clip-reveal launch animation from the tapped row.
+- Recent apps (launched from MONO) in the drawer and quick panel.
+- A–Z rail: straight when idle; bends toward the finger with a letter bubble while dragging,
+  springs back on release.
+- Settings → Home & gestures: swipe-down action, app names, icon size, recent apps.
+
 ### Added — Lock screen & drawer upgrade
 - Lock screen is fully immersive: status and navigation bars hidden, drawn under the camera
   cutout. Clock, date, weather and wallpaper layout unchanged.

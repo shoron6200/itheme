@@ -29,6 +29,59 @@ class LauncherPreferences(context: Context) {
         }
         .distinctUntilChanged()
 
+    val homeLayout: Flow<HomeLayout> = store.data
+        .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
+        .map { p ->
+            val d = HomeLayout()
+            HomeLayout(
+                swipeDownAction = p[SWIPE_DOWN]?.let { runCatching { SwipeDownAction.valueOf(it) }.getOrNull() }
+                    ?: d.swipeDownAction,
+                showLabels = p[SHOW_LABELS] ?: d.showLabels,
+                iconSize = p[ICON_SIZE]?.let { runCatching { IconSize.valueOf(it) }.getOrNull() } ?: d.iconSize,
+                showRecents = p[SHOW_RECENTS] ?: d.showRecents,
+            )
+        }
+        .distinctUntilChanged()
+
+    /** Apps launched from MONO, most recent first. */
+    val recentKeys: Flow<List<String>> = store.data
+        .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
+        .map { PinList.decode(it[RECENTS].orEmpty()) }
+        .distinctUntilChanged()
+
+    suspend fun updateHomeLayout(transform: (HomeLayout) -> HomeLayout) {
+        store.edit { p ->
+            val d = HomeLayout()
+            val current = HomeLayout(
+                swipeDownAction = p[SWIPE_DOWN]?.let { runCatching { SwipeDownAction.valueOf(it) }.getOrNull() }
+                    ?: d.swipeDownAction,
+                showLabels = p[SHOW_LABELS] ?: d.showLabels,
+                iconSize = p[ICON_SIZE]?.let { runCatching { IconSize.valueOf(it) }.getOrNull() } ?: d.iconSize,
+                showRecents = p[SHOW_RECENTS] ?: d.showRecents,
+            )
+            val next = transform(current)
+            p[SWIPE_DOWN] = next.swipeDownAction.name
+            p[SHOW_LABELS] = next.showLabels
+            p[ICON_SIZE] = next.iconSize.name
+            p[SHOW_RECENTS] = next.showRecents
+        }
+    }
+
+    suspend fun recordLaunch(key: String) {
+        store.edit { p -> p[RECENTS] = PinList.encode(RecentList.push(PinList.decode(p[RECENTS].orEmpty()), key)) }
+    }
+
+    suspend fun clearRecents() {
+        store.edit { it.remove(RECENTS) }
+    }
+
+    suspend fun restorePin(key: String, index: Int) {
+        store.edit { p ->
+            p[PINNED] = PinList.encode(PinList.restore(PinList.decode(p[PINNED].orEmpty()), key, index))
+            p[PINS_INITIALIZED] = true
+        }
+    }
+
     suspend fun initializePins(keys: List<String>) {
         store.edit { prefs ->
             if (prefs[PINS_INITIALIZED] != true) {
@@ -71,5 +124,10 @@ class LauncherPreferences(context: Context) {
     private companion object {
         val PINNED = stringPreferencesKey("pinned_apps")
         val PINS_INITIALIZED = booleanPreferencesKey("pins_initialized")
+        val RECENTS = stringPreferencesKey("recent_apps")
+        val SWIPE_DOWN = stringPreferencesKey("swipe_down_action")
+        val SHOW_LABELS = booleanPreferencesKey("show_labels")
+        val ICON_SIZE = stringPreferencesKey("icon_size")
+        val SHOW_RECENTS = booleanPreferencesKey("show_recents")
     }
 }

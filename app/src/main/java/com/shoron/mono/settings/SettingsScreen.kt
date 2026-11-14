@@ -54,7 +54,7 @@ import com.shoron.mono.apps.AppIcon
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.data.PinList
 
-private enum class SettingsPage { Main, Wallpaper, Widgets, Lock }
+private enum class SettingsPage { Main, Wallpaper, Widgets, Lock, Home }
 
 /** Two-page settings flow without a navigation library: main list and wallpaper editor. */
 @Composable
@@ -67,10 +67,12 @@ fun SettingsNavHost(onExit: () -> Unit) {
             onOpenWallpaper = { page = SettingsPage.Wallpaper },
             onOpenWidgets = { page = SettingsPage.Widgets },
             onOpenLock = { page = SettingsPage.Lock },
+            onOpenHome = { page = SettingsPage.Home },
         )
         SettingsPage.Wallpaper -> WallpaperScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Widgets -> WidgetsScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Lock -> LockSettingsScreen(onBack = { page = SettingsPage.Main })
+        SettingsPage.Home -> HomeSettingsScreen(onBack = { page = SettingsPage.Main })
     }
 }
 
@@ -80,6 +82,7 @@ fun SettingsScreen(
     onOpenWallpaper: () -> Unit,
     onOpenWidgets: () -> Unit,
     onOpenLock: () -> Unit,
+    onOpenHome: () -> Unit,
 ) {
     val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val pinned by viewModel.pinnedApps.collectAsStateWithLifecycle()
@@ -154,6 +157,7 @@ fun SettingsScreen(
             NavRow(stringResource(R.string.settings_wallpaper), onOpenWallpaper)
             NavRow(stringResource(R.string.settings_widgets), onOpenWidgets)
             NavRow(stringResource(R.string.settings_lock), onOpenLock)
+            NavRow(stringResource(R.string.settings_home_gestures), onOpenHome)
             Spacer(Modifier.height(24.dp))
         }
 

@@ -8,6 +8,8 @@
     <!-- Lock screen: optional, user-granted in system settings; lets the MONO lock screen
          appear after any app on Android 10+. Never required for the launcher itself. -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Home: optional "swipe down = notification shade" (normal permission). -->
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
     <!--
         Package visibility: MONO only needs to see launchable activities and the

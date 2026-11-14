@@ -40,10 +40,12 @@ class LockScreenActivity : ComponentActivity() {
     private val keyguard by lazy { getSystemService(KeyguardManager::class.java) }
     private val power by lazy { getSystemService(PowerManager::class.java) }
     private var preview = false
+    private var leaving = false
 
     private val unlockedReceiver = object : BroadcastReceiver() {
+        // Fingerprint/face unlock while MONO's screen was on top.
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (!preview) finish()
+            if (!preview) goHome()
         }
     }
 
@@ -97,12 +99,24 @@ class LockScreenActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         preview = intent.getBooleanExtra(EXTRA_PREVIEW, false)
+        leaving = false
+    }
+
+    override fun onStart() {
+        super.onStart()
+        isVisible = true
+    }
+
+    override fun onStop() {
+        isVisible = false
+        super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
-        // Woken but not locked (e.g. within the lock delay): nothing to cover.
-        if (!preview && power.isInteractive && !keyguard.isKeyguardLocked) finish()
+        // Already unlocked (e.g. fingerprint on the power button woke and unlocked the phone,
+        // or the lock delay had not elapsed): go straight to MONO home, no extra swipe.
+        if (!preview && power.isInteractive && !keyguard.isKeyguardLocked) goHome()
     }
 
     override fun onDestroy() {
@@ -111,22 +125,59 @@ class LockScreenActivity : ComponentActivity() {
     }
 
     private fun unlock() {
-        if (preview || !keyguard.isKeyguardLocked) {
+        if (preview) {
             finish()
             return
         }
+        if (!keyguard.isKeyguardLocked) {
+            goHome()
+            return
+        }
+        // Android shows its own PIN / pattern / password / biometric prompt.
         keyguard.requestDismissKeyguard(
             this,
             object : KeyguardManager.KeyguardDismissCallback() {
                 override fun onDismissSucceeded() {
+                    goHome()
+                }
+
+                override fun onDismissCancelled() {
+                    // User backed out of the bouncer: stay on the MONO lock screen.
+                }
+
+                override fun onDismissError() {
+                    // OEM refused the request: reveal Android's own lock screen (still secure).
                     finish()
                 }
             },
         )
     }
 
+    /**
+     * After a successful unlock, bring MONO's home screen to the front, then close this screen
+     * without animation, so no app or second lock screen is left in between. Guarded so it
+     * runs once per unlock.
+     */
+    private fun goHome() {
+        if (leaving || isFinishing) return
+        leaving = true
+        val home = Intent(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_HOME)
+            .setPackage(packageName)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        runCatching { startActivity(home) }
+        finish()
+        @Suppress("DEPRECATION")
+        overridePendingTransition(0, 0)
+    }
+
     companion object {
         private const val EXTRA_PREVIEW = "preview"
+
+        /** True while the MONO lock screen is on screen; prevents duplicate launches. */
+        @Volatile
+        var isVisible: Boolean = false
+            private set
 
         fun previewIntent(context: Context): Intent =
             Intent(context, LockScreenActivity::class.java)

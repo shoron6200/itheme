@@ -1,6 +1,33 @@
 package com.shoron.mono.launcher.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import android.graphics.Rect
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Canvas
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.zIndex
+import androidx.compose.foundation.gestures.detectDragGestures
+import com.shoron.mono.core.design.LaunchBounds
+import com.shoron.mono.core.design.MonoChip
+import com.shoron.mono.core.design.TopCutout
+import com.shoron.mono.core.design.pressScale
+import com.shoron.mono.core.design.rememberTopCutout
+import com.shoron.mono.core.design.trackBounds
+import com.shoron.mono.data.HomeLayout
+import kotlin.math.abs
+import kotlin.math.roundToInt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -83,45 +110,69 @@ class HomeWidgets(
 )
 
 /**
- * Ocean Edition home screen, left-aligned editorial layout:
- *   top: date · battery
+ * Ocean Edition home screen, left-aligned editorial layout, drawn edge-to-edge with the status
+ * bar hidden:
+ *   top: date · battery (just below the camera cutout on their side, or at the top edge)
  *   upper: Radial Digital clock (default) — or the Editorial Word Clock further down
  *   middle: month · weather details · script weekday
- *   lower: vertical app shortcuts
- * The wallpaper is drawn behind this screen by LauncherRoot.
+ *   lower: vertical app shortcuts (long-press empty space to edit)
+ * Gestures: swipe up = app drawer (follows the finger), swipe down = configurable action.
  */
 @Composable
 fun HomeScreen(
     widgets: HomeWidgets,
     state: HomeUiState,
-    onLaunch: (AppEntry) -> Unit,
-    onAppInfo: (AppEntry) -> Unit,
-    onUnpin: (AppEntry) -> Unit,
-    onOpenDrawer: () -> Unit,
-    onOpenSettings: () -> Unit,
-    onRefreshWeather: () -> Unit,
+    layout: HomeLayout,
+    editMode: Boolean,
+    canRestore: Boolean,
+    actions: HomeActions,
     modifier: Modifier = Modifier,
 ) {
-    val swipeUp by rememberUpdatedState(onOpenDrawer)
-    val longPress by rememberUpdatedState(onOpenSettings)
-    val swipeThresholdPx = with(LocalDensity.current) { 56.dp.toPx() }
+    val current by rememberUpdatedState(actions)
+    val density = LocalDensity.current
+    val swipeDownThresholdPx = with(density) { 72.dp.toPx() }
+    val directionSlopPx = with(density) { 6.dp.toPx() }
+    val cutout = rememberTopCutout()
 
     BoxWithConstraints(
         modifier
             .fillMaxSize()
-            .pointerInput(Unit) { detectTapGestures(onLongPress = { longPress() }) }
-            .pointerInput(swipeThresholdPx) {
-                var dragged = 0f
-                detectVerticalDragGestures(
-                    onDragStart = { dragged = 0f },
-                    onVerticalDrag = { change, amount ->
-                        dragged += amount
-                        change.consume()
-                    },
-                    onDragEnd = { if (dragged < -swipeThresholdPx) swipeUp() },
+            .pointerInput(editMode) {
+                detectTapGestures(
+                    onLongPress = { if (!editMode) current.onEnterEdit() },
+                    onTap = { if (editMode) current.onExitEdit() },
                 )
             }
-            .windowInsetsPadding(WindowInsets.safeDrawing),
+            .pointerInput(editMode) {
+                if (editMode) return@pointerInput
+                val tracker = VelocityTracker()
+                var total = 0f
+                var direction = 0 // -1 = up (drawer), 1 = down (swipe-down action)
+                detectVerticalDragGestures(
+                    onDragStart = {
+                        total = 0f
+                        direction = 0
+                        tracker.resetTracking()
+                    },
+                    onVerticalDrag = { change, amount ->
+                        change.consume()
+                        tracker.addPosition(change.uptimeMillis, change.position)
+                        total += amount
+                        if (direction == 0 && abs(total) > directionSlopPx) direction = if (total < 0) -1 else 1
+                        if (direction == -1) current.onDrawerDrag(amount)
+                    },
+                    onDragEnd = {
+                        val velocity = tracker.calculateVelocity().y
+                        when {
+                            direction == -1 -> current.onDrawerRelease(velocity)
+                            direction == 1 && total > swipeDownThresholdPx -> current.onSwipeDown()
+                        }
+                    },
+                    onDragCancel = { if (direction == -1) current.onDrawerRelease(0f) },
+                )
+            }
+            // Top is handled per side against the cutout (status bar is hidden).
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)),
     ) {
         val metrics = rememberLayoutMetrics(maxWidth, maxHeight)
         val usableHeight = maxHeight
@@ -133,14 +184,14 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f)) {
-                    TopRow(widgets, metrics)
+                    TopRow(widgets, metrics, cutout)
                     Spacer(Modifier.height(metrics.dp(12f)))
-                    EditorialBlock(widgets, metrics, onOpenSettings, onRefreshWeather)
+                    EditorialBlock(widgets, metrics, actions.onOpenSettings, actions.onRefreshWeather)
                 }
-                PinnedAppList(
-                    state.pinnedApps, metrics, onLaunch, onAppInfo, onUnpin, onOpenSettings,
-                    Modifier.weight(1f),
-                )
+                Column(Modifier.weight(1f)) {
+                    if (editMode) EditBar(canRestore, actions)
+                    PinnedAppList(state.pinnedApps, metrics, layout, editMode, actions)
+                }
             }
         } else {
             Column(
@@ -148,26 +199,45 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(start = metrics.gutter, end = metrics.gutter / 2),
             ) {
-                Spacer(Modifier.height(usableHeight * 0.03f))
-                TopRow(widgets, metrics)
+                TopRow(widgets, metrics, cutout)
                 Spacer(Modifier.weight(0.6f))
-                EditorialBlock(widgets, metrics, onOpenSettings, onRefreshWeather)
+                EditorialBlock(widgets, metrics, actions.onOpenSettings, actions.onRefreshWeather)
                 Spacer(Modifier.weight(1f))
-                PinnedAppList(state.pinnedApps, metrics, onLaunch, onAppInfo, onUnpin, onOpenSettings)
+                if (editMode) EditBar(canRestore, actions)
+                PinnedAppList(state.pinnedApps, metrics, layout, editMode, actions)
                 Spacer(Modifier.height(usableHeight * 0.05f))
             }
         }
     }
 }
 
+/** Everything the home screen can ask the launcher to do. Created once by LauncherRoot. */
+class HomeActions(
+    val onLaunch: (AppEntry, Rect?) -> Unit,
+    val onAppInfo: (AppEntry) -> Unit,
+    val onUnpin: (AppEntry) -> Unit,
+    val onReorder: (List<String>) -> Unit,
+    val onRestore: () -> Unit,
+    val onEnterEdit: () -> Unit,
+    val onExitEdit: () -> Unit,
+    val onAddApps: () -> Unit,
+    val onDrawerDrag: (Float) -> Unit,
+    val onDrawerRelease: (Float) -> Unit,
+    val onSwipeDown: () -> Unit,
+    val onOpenSettings: () -> Unit,
+    val onRefreshWeather: () -> Unit,
+)
+
 @Composable
-private fun TopRow(widgets: HomeWidgets, metrics: LayoutMetrics) {
+private fun TopRow(widgets: HomeWidgets, metrics: LayoutMetrics, cutout: TopCutout) {
     val context = LocalContext.current
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         DateLine(
             widgets.clock,
             metrics,
-            Modifier.noRippleClick { SystemShortcuts.openCalendar(context) },
+            Modifier
+                .padding(top = cutout.left + 12.dp)
+                .noRippleClick { SystemShortcuts.openCalendar(context) },
         )
         Spacer(Modifier.weight(1f))
         widgets.battery?.let { battery ->
@@ -179,7 +249,9 @@ private fun TopRow(widgets: HomeWidgets, metrics: LayoutMetrics) {
                     fontWeight = FontWeight.Medium,
                     shadow = Legible,
                 ),
-                modifier = Modifier.noRippleClick { SystemShortcuts.openBatteryUsage(context) },
+                modifier = Modifier
+                    .padding(top = cutout.right + 10.dp)
+                    .noRippleClick { SystemShortcuts.openBatteryUsage(context) },
             )
         }
     }
@@ -274,20 +346,121 @@ private fun Modifier.noRippleClick(onClick: () -> Unit): Modifier =
         onClick = onClick,
     )
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EditBar(canRestore: Boolean, actions: HomeActions) {
+    Column(Modifier.padding(bottom = 12.dp)) {
+        Text(
+            text = stringResource(R.string.home_edit_hint),
+            style = TextStyle(color = MonoColors.Muted, fontFamily = Outfit, fontSize = 12.sp, shadow = Legible),
+        )
+        Spacer(Modifier.height(8.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            MonoChip(stringResource(R.string.home_edit_add), onClick = actions.onAddApps)
+            if (canRestore) MonoChip(stringResource(R.string.home_edit_restore), onClick = actions.onRestore)
+            MonoChip(stringResource(R.string.home_edit_settings), onClick = actions.onOpenSettings)
+            MonoChip(stringResource(R.string.home_edit_done), active = true, onClick = actions.onExitEdit)
+        }
+    }
+}
+
+private val EditRowShape = RoundedCornerShape(14.dp)
+
+/**
+ * Pinned shortcuts. Normal mode: tap to launch (with a clip-reveal launch animation and press
+ * feedback), long-press for actions. Edit mode: drag a row to reorder, × to remove.
+ */
 @Composable
 private fun PinnedAppList(
     apps: List<AppEntry>,
     metrics: LayoutMetrics,
-    onLaunch: (AppEntry) -> Unit,
-    onAppInfo: (AppEntry) -> Unit,
-    onUnpin: (AppEntry) -> Unit,
-    onOpenSettings: () -> Unit,
+    layout: HomeLayout,
+    editMode: Boolean,
+    actions: HomeActions,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(metrics.dp(2f))) {
-        apps.forEach { entry ->
+    val haptics = LocalHapticFeedback.current
+    val density = LocalDensity.current
+    val rowHeight = metrics.dp(layout.iconSize.dp + 16f)
+    val rowHeightPx = with(density) { rowHeight.toPx() }
+    val latestApps by rememberUpdatedState(apps)
+
+    val working = remember { mutableStateListOf<AppEntry>() }
+    var draggingKey by remember { mutableStateOf<String?>(null) }
+    val dragOffset = remember { mutableFloatStateOf(0f) }
+    var pendingOrder by remember { mutableStateOf<List<String>?>(null) }
+    LaunchedEffect(apps) {
+        if (apps.map { it.key } == pendingOrder) pendingOrder = null
+    }
+    val display: List<AppEntry> = when {
+        draggingKey != null -> working
+        pendingOrder != null -> pendingOrder!!.mapNotNull { k -> apps.firstOrNull { it.key == k } } +
+            apps.filter { it.key !in pendingOrder!! }
+        else -> apps
+    }
+
+    Column(modifier) {
+        display.forEach { entry ->
             key(entry.key) {
-                HomeAppRow(entry, metrics, onLaunch, onAppInfo, onUnpin, onOpenSettings)
+                val isDragging = entry.key == draggingKey
+                val rowModifier = Modifier
+                    .height(rowHeight)
+                    .zIndex(if (isDragging) 1f else 0f)
+                    .graphicsLayer {
+                        translationY = if (isDragging) dragOffset.floatValue else 0f
+                        val s = if (isDragging) 1.04f else 1f
+                        scaleX = s
+                        scaleY = s
+                    }
+                    .then(
+                        if (!editMode) {
+                            Modifier
+                        } else {
+                            Modifier.pointerInput(entry.key) {
+                                detectDragGestures(
+                                    onDragStart = {
+                                        working.clear()
+                                        working.addAll(pendingOrder?.let { order ->
+                                            order.mapNotNull { k -> latestApps.firstOrNull { it.key == k } }
+                                        } ?: latestApps)
+                                        draggingKey = entry.key
+                                        dragOffset.floatValue = 0f
+                                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    },
+                                    onDrag = { change, amount ->
+                                        change.consume()
+                                        dragOffset.floatValue += amount.y
+                                        val from = working.indexOfFirst { it.key == entry.key }
+                                        val steps = (dragOffset.floatValue / rowHeightPx).roundToInt()
+                                        if (from >= 0 && steps != 0) {
+                                            val to = (from + steps).coerceIn(0, working.lastIndex)
+                                            if (to != from) {
+                                                working.add(to, working.removeAt(from))
+                                                dragOffset.floatValue -= (to - from) * rowHeightPx
+                                                haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                            }
+                                        }
+                                    },
+                                    onDragEnd = {
+                                        val order = working.map { it.key }
+                                        pendingOrder = order
+                                        draggingKey = null
+                                        dragOffset.floatValue = 0f
+                                        actions.onReorder(order)
+                                    },
+                                    onDragCancel = {
+                                        draggingKey = null
+                                        dragOffset.floatValue = 0f
+                                    },
+                                )
+                            }
+                        },
+                    )
+                if (editMode) {
+                    EditableAppRow(entry, metrics, layout, actions, rowModifier)
+                } else {
+                    HomeAppRow(entry, metrics, layout, actions, rowModifier)
+                }
             }
         }
     }
@@ -298,50 +471,113 @@ private fun PinnedAppList(
 private fun HomeAppRow(
     entry: AppEntry,
     metrics: LayoutMetrics,
-    onLaunch: (AppEntry) -> Unit,
-    onAppInfo: (AppEntry) -> Unit,
-    onUnpin: (AppEntry) -> Unit,
-    onOpenSettings: () -> Unit,
+    layout: HomeLayout,
+    actions: HomeActions,
+    modifier: Modifier,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val haptics = LocalHapticFeedback.current
-    Box {
+    val interaction = remember { MutableInteractionSource() }
+    val bounds = remember { LaunchBounds() }
+    Box(modifier) {
         Row(
             Modifier
+                .fillMaxHeight()
+                .trackBounds(bounds)
+                .pressScale(interaction)
                 .combinedClickable(
-                    onClick = { onLaunch(entry) },
+                    interactionSource = interaction,
+                    indication = null,
+                    onClick = { actions.onLaunch(entry, bounds.rect) },
                     onLongClick = {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         menuOpen = true
                     },
                 )
-                .padding(vertical = metrics.dp(8f), horizontal = 4.dp),
+                .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            AppIcon(entry, metrics.dp(30f))
-            Spacer(Modifier.width(metrics.dp(24f)))
-            Text(
-                text = entry.label,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = TextStyle(
-                    color = MonoColors.Foreground,
-                    fontFamily = Outfit,
-                    fontSize = metrics.sp(12.5f),
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.3.sp,
-                    shadow = Legible,
-                ),
-            )
+            AppIcon(entry, metrics.dp(layout.iconSize.dp))
+            if (layout.showLabels) {
+                Spacer(Modifier.width(metrics.dp(24f)))
+                AppLabel(entry, metrics)
+            }
         }
         AppActionsMenu(
             expanded = menuOpen,
             onDismiss = { menuOpen = false },
             actions = listOf(
-                AppAction(stringResource(R.string.action_unpin)) { onUnpin(entry) },
-                AppAction(stringResource(R.string.action_app_info)) { onAppInfo(entry) },
-                AppAction(stringResource(R.string.action_mono_settings), onOpenSettings),
+                AppAction(stringResource(R.string.action_unpin)) { actions.onUnpin(entry) },
+                AppAction(stringResource(R.string.action_app_info)) { actions.onAppInfo(entry) },
+                AppAction(stringResource(R.string.action_edit_home), actions.onEnterEdit),
             ),
         )
     }
+}
+
+@Composable
+private fun EditableAppRow(
+    entry: AppEntry,
+    metrics: LayoutMetrics,
+    layout: HomeLayout,
+    actions: HomeActions,
+    modifier: Modifier,
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp)
+            .clip(EditRowShape)
+            .background(MonoColors.Ink.copy(alpha = 0.45f))
+            .padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        DragHandle()
+        Spacer(Modifier.width(10.dp))
+        AppIcon(entry, metrics.dp(layout.iconSize.dp * 0.9f))
+        Spacer(Modifier.width(metrics.dp(16f)))
+        Box(Modifier.weight(1f)) { AppLabel(entry, metrics) }
+        val interaction = remember { MutableInteractionSource() }
+        Box(
+            Modifier
+                .size(40.dp)
+                .pressScale(interaction, 0.85f)
+                .clickable(interactionSource = interaction, indication = null) { actions.onUnpin(entry) },
+            contentAlignment = Alignment.Center,
+        ) {
+            Canvas(Modifier.size(12.dp)) {
+                val w = 1.6.dp.toPx()
+                drawLine(MonoColors.Foreground, Offset.Zero, Offset(size.width, size.height), w, StrokeCap.Round)
+                drawLine(MonoColors.Foreground, Offset(size.width, 0f), Offset(0f, size.height), w, StrokeCap.Round)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DragHandle() {
+    Canvas(Modifier.size(width = 14.dp, height = 12.dp)) {
+        val w = 1.4.dp.toPx()
+        for (i in 0..2) {
+            val y = size.height * (0.15f + 0.35f * i)
+            drawLine(MonoColors.Muted, Offset(0f, y), Offset(size.width, y), w, StrokeCap.Round)
+        }
+    }
+}
+
+@Composable
+private fun AppLabel(entry: AppEntry, metrics: LayoutMetrics) {
+    Text(
+        text = entry.label,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        style = TextStyle(
+            color = MonoColors.Foreground,
+            fontFamily = Outfit,
+            fontSize = metrics.sp(12.5f),
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.3.sp,
+            shadow = Legible,
+        ),
+    )
 }

@@ -54,6 +54,8 @@ class LockScreenController(
         Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || Settings.canDrawOverlays(appContext)
 
     private fun show() {
+        // Already showing (e.g. the screen timed out on the MONO lock screen): nothing to do.
+        if (LockScreenActivity.isVisible) return
         // Never cover an ongoing call (the screen turns off against the ear during calls).
         val audio = appContext.getSystemService(AudioManager::class.java)
         val mode = audio?.mode ?: AudioManager.MODE_NORMAL

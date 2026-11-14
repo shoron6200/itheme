@@ -7,6 +7,7 @@
     <string name="action_unpin">Remove from home</string>
     <string name="action_app_info">App info</string>
     <string name="action_mono_settings">MONO settings</string>
+    <string name="action_edit_home">Edit home</string>
 
     <string name="toast_launch_failed">Couldn\'t open this app</string>
     <string name="toast_pinned">Added to home</string>
@@ -88,4 +89,34 @@
     <string name="lock_media_granted">On: a player card appears on the lock screen while music or video is playing or paused. MONO does not read your notifications.</string>
     <string name="lock_media_missing">Off: Android requires notification access for apps to see what is playing. Tap to allow MONO (it does not read your notifications).</string>
     <string name="media_access_label">MONO media controls</string>
+
+    <string name="drawer_recent">Recent</string>
+    <string name="home_edit_add">Add apps</string>
+    <string name="home_edit_restore">Undo remove</string>
+    <string name="home_edit_settings">Settings</string>
+    <string name="home_edit_done">Done</string>
+    <string name="home_edit_hint">Drag to reorder · × to remove</string>
+    <string name="quick_search">Search apps</string>
+    <string name="quick_internet">Internet</string>
+    <string name="quick_bluetooth">Bluetooth</string>
+    <string name="quick_torch_on">Torch on</string>
+    <string name="quick_torch_off">Torch</string>
+    <string name="quick_camera">Camera</string>
+    <string name="quick_settings">Phone settings</string>
+    <string name="quick_mono">MONO settings</string>
+    <string name="quick_notifications">Notifications</string>
+    <string name="settings_home_gestures">Home &amp; gestures</string>
+    <string name="home_swipe_down">Swipe down on home</string>
+    <string name="home_swipe_quick">Quick actions</string>
+    <string name="home_swipe_search">Search apps</string>
+    <string name="home_swipe_notifications">Notification shade</string>
+    <string name="home_swipe_none">Nothing</string>
+    <string name="home_show_labels">Show app names</string>
+    <string name="home_icon_size">Icon size</string>
+    <string name="home_icon_small">Small</string>
+    <string name="home_icon_medium">Medium</string>
+    <string name="home_icon_large">Large</string>
+    <string name="home_show_recents">Recent apps in drawer</string>
+    <string name="home_clear_recents">Clear recent apps</string>
+    <string name="home_gestures_note">Long-press empty space on the home screen to rearrange, remove or add apps. Recent apps only include apps opened from MONO.</string>
 </resources>

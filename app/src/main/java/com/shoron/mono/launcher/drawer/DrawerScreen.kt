@@ -1,6 +1,19 @@
 package com.shoron.mono.launcher.drawer
 
+import android.graphics.Rect
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.shoron.mono.core.design.LaunchBounds
+import com.shoron.mono.core.design.pressScale
+import com.shoron.mono.core.design.trackBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -66,9 +79,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun DrawerScreen(
     state: DrawerUiState,
+    recents: List<AppEntry>,
+    focusSearchToken: Int,
     query: String,
     onQueryChange: (String) -> Unit,
-    onLaunch: (AppEntry) -> Unit,
+    onLaunch: (AppEntry, Rect?) -> Unit,
     onTogglePin: (AppEntry) -> Unit,
     onAppInfo: (AppEntry) -> Unit,
     onClose: () -> Unit,
@@ -84,6 +99,16 @@ fun DrawerScreen(
 
     LaunchedEffect(query) { listState.scrollToItem(0) }
 
+    // Swipe-down "Search" opens the drawer with the keyboard ready.
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(focusSearchToken) {
+        if (focusSearchToken > 0) {
+            runCatching { focusRequester.requestFocus() }
+            keyboard?.show()
+        }
+    }
+
     Column(
         modifier
             .fillMaxSize()
@@ -93,9 +118,14 @@ fun DrawerScreen(
         SearchField(
             query = query,
             onQueryChange = onQueryChange,
-            onSubmit = { state.firstApp?.let(onLaunch) },
-            modifier = Modifier.padding(start = 32.dp, end = 32.dp, top = 20.dp, bottom = 8.dp),
+            onSubmit = { state.firstApp?.let { onLaunch(it, null) } },
+            modifier = Modifier
+                .padding(start = 32.dp, end = 32.dp, top = 20.dp, bottom = 8.dp)
+                .focusRequester(focusRequester),
         )
+        AnimatedVisibility(visible = query.isBlank() && recents.isNotEmpty()) {
+            RecentApps(recents, onLaunch)
+        }
         Box(
             Modifier
                 .weight(1f)
@@ -204,6 +234,47 @@ private fun SearchField(
     )
 }
 
+/** Apps recently launched from MONO (most recent first). */
+@Composable
+private fun RecentApps(recents: List<AppEntry>, onLaunch: (AppEntry, Rect?) -> Unit) {
+    Column(Modifier.padding(top = 4.dp, bottom = 8.dp)) {
+        Text(
+            text = stringResource(R.string.drawer_recent),
+            color = MonoColors.Faint,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(start = 32.dp, bottom = 8.dp),
+        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 28.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            items(recents, key = { it.key }) { entry ->
+                val interaction = remember { MutableInteractionSource() }
+                val bounds = remember { LaunchBounds() }
+                Column(
+                    Modifier
+                        .width(60.dp)
+                        .trackBounds(bounds)
+                        .pressScale(interaction)
+                        .clickable(interactionSource = interaction, indication = null) { onLaunch(entry, bounds.rect) },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    AppIcon(entry, 32.dp)
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = entry.label,
+                        color = MonoColors.Muted,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun SectionHeader(letter: String) {
     Text(
@@ -220,18 +291,24 @@ private fun SectionHeader(letter: String) {
 private fun DrawerAppRow(
     entry: AppEntry,
     isPinned: Boolean,
-    onLaunch: (AppEntry) -> Unit,
+    onLaunch: (AppEntry, Rect?) -> Unit,
     onTogglePin: (AppEntry) -> Unit,
     onAppInfo: (AppEntry) -> Unit,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val haptics = LocalHapticFeedback.current
+    val interaction = remember { MutableInteractionSource() }
+    val bounds = remember { LaunchBounds() }
     Box {
         Row(
             Modifier
                 .fillMaxWidth()
+                .trackBounds(bounds)
+                .pressScale(interaction, 0.97f)
                 .combinedClickable(
-                    onClick = { onLaunch(entry) },
+                    interactionSource = interaction,
+                    indication = null,
+                    onClick = { onLaunch(entry, bounds.rect) },
                     onLongClick = {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         menuOpen = true

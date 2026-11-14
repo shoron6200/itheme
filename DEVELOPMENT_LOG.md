@@ -2,6 +2,38 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-14 — Unlock fix, status bar, rail animation, Phase 5
+
+### Unlock → home fix
+- Cause: on unlock the MONO lock screen simply `finish()`ed (or stayed up after a fingerprint
+  unlock until resumed), returning to whatever task was underneath — sometimes the system
+  keyguard/another screen needing a second swipe.
+- Now every success path (`onDismissSucceeded`, `ACTION_USER_PRESENT`, resume while already
+  unlocked) calls `goHome()`: starts MONO's HOME intent (package-scoped, no animation) and then
+  finishes, guarded by a `leaving` flag. Bouncer cancel keeps the MONO lock screen; a dismiss
+  error reveals Android's lock screen (still secure). `LockScreenActivity.isVisible` stops the
+  controller from relaunching it when the screen times out on it.
+
+### Status bar / insets
+- Home hides `statusBars()` (transient by swipe), re-applied on resume/focus. Top content uses
+  `rememberTopCutout()` (display-cutout bounding rects per screen half) instead of the
+  status-bar inset; horizontal + bottom still use `safeDrawing`.
+- Lock battery moved outside the layout box (clock/date box unchanged), top padding from cutout.
+
+### Phase 5
+- Drawer progress is an `Animatable` driven by home drag deltas + `VelocityTracker`; visual
+  motion in `graphicsLayer`, visibility via `derivedStateOf` (no per-frame recomposition).
+- Edit mode reorder: local working list while dragging, row swap when the offset crosses a
+  row height, optimistic `pendingOrder` until DataStore emits.
+- Recents: MRU of launches through MONO (`RecentList`), stored in DataStore. Usage-stats access
+  intentionally not requested.
+- Swipe-down "Notification shade" uses `StatusBarManager.expandNotificationsPanel` via
+  reflection (EXPAND_STATUS_BAR, normal permission); falls back to the quick panel if blocked.
+- Rail: per-letter `graphicsLayer` reading finger Y + intensity `Animatable`; `RailMath` tested.
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-13 — Lock screen immersive, media card, zigzag rail
 
 - Reference images for this request did not arrive with the message; implemented against the
