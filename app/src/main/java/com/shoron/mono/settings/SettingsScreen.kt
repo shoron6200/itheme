@@ -53,16 +53,33 @@ import com.shoron.mono.R
 import com.shoron.mono.apps.AppIcon
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.data.PinList
+import android.content.ComponentName
+import com.shoron.mono.media.MediaAccessService
 import com.shoron.mono.power.Diagnostics
+import com.shoron.mono.power.MonoAccessibilityService
+import com.shoron.mono.setup.GuideTarget
+import com.shoron.mono.setup.RestrictedKind
+import com.shoron.mono.setup.RestrictedSettingsGuide
+import com.shoron.mono.setup.SetupScreen
+import com.shoron.mono.setup.SetupStepId
 import com.shoron.mono.power.ScreenControl
 
-private enum class SettingsPage { Main, Wallpaper, Widgets, Lock, Home, Icons }
+enum class SettingsPage { Main, Wallpaper, Widgets, Lock, Home, Icons, Setup, Onboarding, GuideAccessibility, GuideNotifications, Floating }
 
 /** Two-page settings flow without a navigation library: main list and wallpaper editor. */
 @Composable
-fun SettingsNavHost(onExit: () -> Unit) {
-    var page by rememberSaveable { mutableStateOf(SettingsPage.Main) }
-    BackHandler(enabled = page != SettingsPage.Main) { page = SettingsPage.Main }
+fun SettingsNavHost(onExit: () -> Unit, startPage: SettingsPage = SettingsPage.Main) {
+    var page by rememberSaveable { mutableStateOf(startPage) }
+    val context = LocalContext.current
+    val back: () -> Unit = {
+        page = when (page) {
+            SettingsPage.GuideAccessibility, SettingsPage.GuideNotifications ->
+                if (startPage == SettingsPage.Onboarding) SettingsPage.Onboarding else SettingsPage.Setup
+            SettingsPage.Onboarding -> SettingsPage.Onboarding
+            else -> SettingsPage.Main
+        }
+    }
+    BackHandler(enabled = page != startPage) { back() }
     when (page) {
         SettingsPage.Main -> SettingsScreen(
             onBack = onExit,
@@ -71,12 +88,43 @@ fun SettingsNavHost(onExit: () -> Unit) {
             onOpenLock = { page = SettingsPage.Lock },
             onOpenHome = { page = SettingsPage.Home },
             onOpenIcons = { page = SettingsPage.Icons },
+            onOpenSetup = { page = SettingsPage.Setup },
+            onOpenFloating = { page = SettingsPage.Floating },
         )
         SettingsPage.Wallpaper -> WallpaperScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Widgets -> WidgetsScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Lock -> LockSettingsScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Home -> HomeSettingsScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Icons -> IconsScreen(onBack = { page = SettingsPage.Main })
+        SettingsPage.Floating -> FloatingWindowsScreen(onBack = { page = SettingsPage.Main })
+        SettingsPage.Setup, SettingsPage.Onboarding -> SetupScreen(
+            onboarding = page == SettingsPage.Onboarding,
+            onDone = { if (page == SettingsPage.Onboarding) onExit() else page = SettingsPage.Main },
+            onOpenGuide = { id ->
+                page = if (id == SetupStepId.Notifications) SettingsPage.GuideNotifications else SettingsPage.GuideAccessibility
+            },
+            onOpenWeather = { page = SettingsPage.Widgets },
+        )
+        SettingsPage.GuideAccessibility -> RestrictedSettingsGuide(
+            target = GuideTarget(
+                packageName = context.packageName,
+                appLabel = stringResource(R.string.app_name),
+                serviceLabel = stringResource(R.string.accessibility_label),
+                kind = RestrictedKind.Accessibility,
+                component = ComponentName(context, MonoAccessibilityService::class.java),
+            ),
+            onBack = back,
+        )
+        SettingsPage.GuideNotifications -> RestrictedSettingsGuide(
+            target = GuideTarget(
+                packageName = context.packageName,
+                appLabel = stringResource(R.string.app_name),
+                serviceLabel = stringResource(R.string.media_access_label),
+                kind = RestrictedKind.NotificationAccess,
+                component = ComponentName(context, MediaAccessService::class.java),
+            ),
+            onBack = back,
+        )
     }
 }
 
@@ -88,6 +136,8 @@ fun SettingsScreen(
     onOpenLock: () -> Unit,
     onOpenHome: () -> Unit,
     onOpenIcons: () -> Unit,
+    onOpenSetup: () -> Unit,
+    onOpenFloating: () -> Unit,
 ) {
     val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val pinned by viewModel.pinnedApps.collectAsStateWithLifecycle()
@@ -164,6 +214,8 @@ fun SettingsScreen(
             NavRow(stringResource(R.string.settings_lock), onOpenLock)
             NavRow(stringResource(R.string.settings_home_gestures), onOpenHome)
             NavRow(stringResource(R.string.icons_title), onOpenIcons)
+            NavRow(stringResource(R.string.setup_title), onOpenSetup)
+            NavRow(stringResource(R.string.floating_title), onOpenFloating)
             Spacer(Modifier.height(24.dp))
         }
 

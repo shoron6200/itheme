@@ -66,11 +66,11 @@ private val DrawerSpring = spring<Float>(dampingRatio = 0.92f, stiffness = 420f)
 /** Fraction of the screen height the finger travels to open the drawer fully. */
 private const val DRAWER_TRAVEL = 0.5f
 
-/** Released past this progress (~50dp on a 20:9 phone) → opens. */
-private const val DRAWER_OPEN_AT = 0.09f
+/** Released past this progress (~32dp of finger travel on a 20:9 phone) → opens. */
+private const val DRAWER_OPEN_AT = 0.06f
 
-/** Upward release velocity that opens regardless of distance (px/s). */
-private const val DRAWER_FLING_PX_S = 350f
+/** Upward release velocity that opens regardless of distance (px/s) — a light flick. */
+private const val DRAWER_FLING_PX_S = 250f
 
 @Composable
 fun LauncherRoot(
@@ -143,6 +143,15 @@ fun LauncherRoot(
         }
         if (!homeViewModel.launch(entry, bounds, options)) context.toast(context.getString(R.string.toast_launch_failed))
     }
+    // Offered only where Android supports freeform windows; worded as a request (Android decides).
+    val floatingSupported = remember { FloatingWindows.isSupported(context) }
+    val launchFloating: ((AppEntry) -> Unit)? = if (!floatingSupported) null else { entry ->
+        if (homeViewModel.launch(entry, null, FloatingWindows.options(context))) {
+            context.toast(context.getString(R.string.toast_floating_requested))
+        } else {
+            context.toast(context.getString(R.string.toast_launch_failed))
+        }
+    }
     val appInfo: (AppEntry) -> Unit = { entry ->
         if (!homeViewModel.openAppInfo(entry)) context.toast(context.getString(R.string.toast_launch_failed))
     }
@@ -185,6 +194,7 @@ fun LauncherRoot(
             },
             onOpenSettings = onOpenSettings,
             onRefreshWeather = homeViewModel::refreshWeatherNow,
+            onLaunchFloating = launchFloating,
         )
     }
 
@@ -245,6 +255,7 @@ fun LauncherRoot(
                 },
                 onAppInfo = appInfo,
                 onClose = { settleDrawer(false) },
+                onLaunchFloating = launchFloating,
                 modifier = Modifier
                     // Claim touches so nothing reaches the home screen underneath.
                     .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }

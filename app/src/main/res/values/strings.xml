@@ -154,4 +154,78 @@
     <string name="icons_exported">Exported</string>
     <string name="icons_export_failed">Export failed</string>
     <string name="icons_actions_note">Copy and export use the selected apps, or every app shown when nothing is selected.</string>
+
+    <!-- Floating windows -->
+    <string name="action_floating">Open as floating window</string>
+    <string name="toast_floating_requested">Asked Android to open it as a floating window</string>
+    <string name="floating_title">Floating windows</string>
+    <string name="floating_supported">This device reports freeform (floating) window support. MONO\'s long-press menu offers \"Open as floating window\"; Android decides the final window mode.</string>
+    <string name="floating_not_supported">This device does not report floating-window support to apps, so MONO cannot open apps as floating windows. MONO hides that option instead of pretending.</string>
+    <string name="floating_gesture_title">Why MONO can\'t copy Realme\'s gesture</string>
+    <string name="floating_gesture_body">Holding the Home gesture and dragging an app to a corner is handled by Android\'s system navigation together with Realme\'s own launcher. Android never sends navigation gestures to other launchers, and there is no public API to turn the current app into a floating window, so MONO cannot detect or reproduce this gesture without root or hidden APIs.</string>
+    <string name="floating_realme_title">Use Realme\'s floating windows</string>
+    <string name="floating_realme_body">Realme UI\'s own Flexible/Floating windows are system features: try Smart Sidebar (swipe from the screen edge) → choose an app, or open Recents → the app card\'s menu → Floating window. Availability and names differ between Realme UI versions, and some builds hide these options while another launcher is the default.</string>
+    <string name="floating_mono_title">In MONO</string>
+    <string name="floating_mono_on">Long-press an app on the home screen or in the drawer → Open as floating window.</string>
+    <string name="floating_mono_off">Not available on this device.</string>
+
+    <!-- Setup assistant -->
+    <string name="setup_title">Permission setup</string>
+    <string name="setup_welcome">Welcome to MONO</string>
+    <string name="setup_intro">A few Android settings let MONO do its job. Each one says why it\'s needed; only the default Home step is required. MONO never turns these on by itself — you choose in Android Settings, then come back here.</string>
+    <string name="setup_progress">%1$d of %2$d steps done</string>
+    <string name="setup_open">Open settings</string>
+    <string name="setup_skip">Skip</string>
+    <string name="setup_unskip">Undo skip</string>
+    <string name="setup_restricted_help">Greyed out? Help</string>
+    <string name="setup_finish">Finish</string>
+    <string name="setup_later">Later</string>
+    <string name="setup_revisit">You can come back any time: MONO settings → Permission setup.</string>
+    <string name="setup_all_done">All set.</string>
+    <string name="setup_state_done">Enabled</string>
+    <string name="setup_state_waiting">Waiting for you</string>
+    <string name="setup_state_skipped">Skipped</string>
+    <string name="setup_state_required">Required</string>
+    <string name="setup_state_optional">Optional</string>
+    <string name="setup_home_title">Default Home app</string>
+    <string name="setup_home_why">Makes MONO the screen you see when you press Home.</string>
+    <string name="setup_overlay_title">Display over other apps</string>
+    <string name="setup_overlay_why">Lets the MONO lock screen appear after you used another app (Android 10+ rule). Without it, it only appears when MONO was open.</string>
+    <string name="setup_access_title">Accessibility: MONO screen off</string>
+    <string name="setup_access_why">Lets MONO turn the screen off like the power button (double-tap, idle timeout, pocket). MONO reads nothing on screen.</string>
+    <string name="setup_notif_title">Notification access</string>
+    <string name="setup_notif_why">Android requires it for apps to see what music or video is playing, for the lock-screen media card. MONO does not read your notifications.</string>
+    <string name="setup_battery_title">Battery optimisation</string>
+    <string name="setup_battery_why">Recommended for a Home app: stops Realme from freezing MONO in standby, which can briefly show the stock launcher.</string>
+    <string name="setup_weather_title">Weather location</string>
+    <string name="setup_weather_why">Pick your city for weather (no location permission needed).</string>
+
+    <!-- Restricted settings guide -->
+    <string name="guide_title">Restricted settings guide</string>
+    <string name="guide_for">%1$s (%2$s) — %3$s</string>
+    <string name="guide_setting_accessibility">Accessibility</string>
+    <string name="guide_setting_notifications">Notification access</string>
+    <string name="guide_status_not_enabled">Not enabled</string>
+    <string name="guide_status_waiting">Waiting for you</string>
+    <string name="guide_status_enabled">Enabled</string>
+    <string name="guide_why_title">Why is it blocked?</string>
+    <string name="guide_why_body">Since Android 13, apps installed from an APK file (not from an app store) can\'t receive Accessibility or Notification access until you allow it. This protects you from malicious downloads. Only you can allow it — no app can do it automatically.</string>
+    <string name="guide_steps_title">Steps (Realme UI)</string>
+    <string name="guide_step1">Try to turn on %2$s for %1$s once. If you see \"Restricted setting\" (or the switch is greyed out), tap OK — this makes the next option appear.</string>
+    <string name="guide_open_setting">Open %1$s</string>
+    <string name="guide_step2">Open %1$s\'s App info and tap ⋮ (top-right corner).</string>
+    <string name="guide_open_app_info">Open App info for %1$s</string>
+    <string name="guide_step3">Tap \"Allow restricted settings\" and confirm with your PIN, pattern or fingerprint.</string>
+    <string name="guide_step4">Go back to %1$s and turn on \"%2$s\". Then return here — this page updates by itself.</string>
+    <string name="guide_mock_restricted">Restricted setting · For your security, this setting is currently unavailable.</string>
+    <string name="guide_mock_app_info">App info · %1$s</string>
+    <string name="guide_mock_allow">Allow restricted settings</string>
+    <string name="guide_mock_confirm">Confirm with PIN, pattern or fingerprint</string>
+    <string name="guide_trouble_title">Troubleshooting</string>
+    <string name="guide_trouble_menu">No ⋮ menu or no \"Allow restricted settings\": first try the switch once (step 1) and tap OK on the warning, then reopen App info.</string>
+    <string name="guide_trouble_old">Android 12 or older: there are no restricted settings — just turn the switch on.</string>
+    <string name="guide_trouble_store">Apps installed from Google Play or the Realme App Market are not restricted.</string>
+    <string name="guide_trouble_realme">Realme UI paths: Settings → Apps → App management → the app → ⋮. Accessibility: Settings → Additional settings → Accessibility → Downloaded apps (or Installed services).</string>
+    <string name="guide_trouble_reset">After reinstalling an APK, you may need to allow restricted settings again.</string>
+    <string name="guide_security_note">MONO only opens the right Settings pages and checks the result. It cannot change these settings itself.</string>
 </resources>

@@ -2,6 +2,43 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-15 — Drawer gestures, setup assistant, restricted settings, floating windows
+
+No device/emulator available: gesture and permission flows are unverified on hardware.
+
+### Drawer root causes
+1. `PullToCloseConnection` accumulated any downward overscroll at the list top — scrolling up
+   into the top and continuing closed the drawer. Now `armed` is set per gesture from
+   `!listState.canScrollBackward` at pointer-down (Initial pass, not consumed); threshold 120dp.
+2. Home's drag detector accepted drags starting in the bottom mandatory-system-gesture inset /
+   top edge → contention with Android navigation. Such drags are ignored (`IGNORE` direction).
+3. Drawer list content ended inside the gesture strip → bottom padding now includes
+   `mandatorySystemGestures - navigationBars`.
+4. Open threshold 0.09 → 0.06 progress, fling 350 → 250 px/s.
+Rail (tap = animateScrollToItem, drag = scrollToItem, bend animation, straight when idle) kept.
+
+### Restricted settings
+- Android 13+: Accessibility / notification-listener toggles are blocked for apps installed by
+  a non-store installer until "Allow restricted settings" in App info (menu appears only after
+  the user first tries the toggle). No public API reports the restriction state, so the guide
+  shows Not enabled / Waiting for user (went to Settings) / Enabled from the real service state.
+  `restrictedSettingsMayApply()` = SDK ≥ 33 and installer not a known store. `GuideTarget`
+  carries the package so another app's settings can be targeted.
+
+### Setup assistant
+- Steps limited to what existing features use. Usage access and runtime permissions are not
+  requested (no feature needs them). Status re-checked on resume; "Waiting" = opened in Settings.
+  Shown once (flag set when displayed); revisit via Settings → Permission setup.
+
+### Floating windows
+- The OEM gesture lives in SystemUI + Realme's recents launcher; navigation gestures are not
+  delivered to third-party launchers and there is no public API to float the foreground app.
+  Closest supported option: `ActivityOptions.setLaunchBounds` (freeform) offered only when
+  `FEATURE_FREEFORM_WINDOW_MANAGEMENT` is present; toast says "asked Android" (no false claim).
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-15 — Stability, power and icon system
 
 No physical device or emulator is available to this workflow, so findings below come from code

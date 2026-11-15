@@ -35,14 +35,26 @@ class SettingsActivity : ComponentActivity() {
                     LocalWallpaperLoader provides container.wallpaperRepository,
                     LocalThemedIcons provides themedIcons,
                 ) {
-                    SettingsNavHost(onExit = ::finish)
+                    SettingsNavHost(
+                        onExit = ::finish,
+                        startPage = if (intent.getBooleanExtra(EXTRA_ONBOARDING, false)) {
+                            SettingsPage.Onboarding
+                        } else {
+                            SettingsPage.Main
+                        },
+                    )
                 }
             }
         }
     }
 
     companion object {
+        private const val EXTRA_ONBOARDING = "onboarding"
+
         fun intent(context: Context): Intent =
             Intent(context, SettingsActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        /** First-launch setup assistant. */
+        fun onboardingIntent(context: Context): Intent = intent(context).putExtra(EXTRA_ONBOARDING, true)
     }
 }

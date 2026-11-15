@@ -4,6 +4,26 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Fixed — app drawer gestures
+- Scrolling up to the top of the app list no longer closes the drawer: pull-to-close only works
+  when the finger went down with the list already at the top (and needs 120dp).
+- The drawer list ends above Android's navigation-gesture strip, so scrolling near the bottom
+  can't trigger the system Home gesture.
+- Home ignores drags that start in Android's bottom gesture strip or the top edge.
+- A shorter/lighter upward swipe opens the drawer (~32dp or a gentle flick).
+
+### Added — setup & permissions
+- First-launch setup assistant (once; later via MONO settings → Permission setup): default
+  Home (required), display over other apps, accessibility screen-off, notification access,
+  battery optimisation, weather city. Live status (Required/Optional, Waiting for you, Enabled,
+  Skipped), skip/undo, progress.
+- Restricted settings guide (Android 13+ sideloaded apps) with Realme UI steps, simple screen
+  illustrations, buttons that open the target app's App info / setting page, live status and
+  troubleshooting.
+- Floating windows: honest status page; "Open as floating window" in long-press menus only on
+  devices that report freeform-window support.
+- `tools/icons/plan_batch.py`: turns MONO's missing-icon export into de-duplicated icon batches.
+
 ### Fixed — stability & power
 - Unlocking (fingerprint, PIN, swipe) returns to the app you were using — ChatGPT, Chrome or
   MONO home — instead of always opening MONO.

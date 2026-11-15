@@ -57,6 +57,12 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.mandatorySystemGestures
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
@@ -88,11 +94,19 @@ fun DrawerScreen(
     onAppInfo: (AppEntry) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    onLaunchFloating: ((AppEntry) -> Unit)? = null,
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val currentOnClose by rememberUpdatedState(onClose)
-    val closeThresholdPx = with(LocalDensity.current) { 96.dp.toPx() }
+    val closeThresholdPx = with(LocalDensity.current) { 120.dp.toPx() }
+    // Keep the end of the list above Android's bottom navigation-gesture strip, so scrolling
+    // near the bottom never turns into a system Home gesture.
+    val gestureClearance = with(LocalDensity.current) {
+        val gestures = WindowInsets.mandatorySystemGestures.getBottom(this)
+        val nav = WindowInsets.navigationBars.getBottom(this)
+        (gestures - nav).coerceAtLeast(0).toDp()
+    }
     val pullToClose = remember(closeThresholdPx) {
         PullToCloseConnection(closeThresholdPx) { currentOnClose() }
     }
@@ -135,8 +149,16 @@ fun DrawerScreen(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
+                    // Arm pull-to-close only if the finger went down while the list was already at
+                    // the top. Scrolling up into the top edge can then never close the drawer.
+                    .pointerInput(listState) {
+                        awaitEachGesture {
+                            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                            pullToClose.armed = !listState.canScrollBackward
+                        }
+                    }
                     .nestedScroll(pullToClose),
-                contentPadding = PaddingValues(start = 32.dp, end = 56.dp, bottom = 24.dp),
+                contentPadding = PaddingValues(start = 32.dp, end = 56.dp, bottom = 24.dp + gestureClearance),
             ) {
                 items(
                     items = state.rows,
@@ -151,6 +173,7 @@ fun DrawerScreen(
                             onLaunch = onLaunch,
                             onTogglePin = onTogglePin,
                             onAppInfo = onAppInfo,
+                            onLaunchFloating = onLaunchFloating,
                         )
                     }
                 }
@@ -294,6 +317,7 @@ private fun DrawerAppRow(
     onLaunch: (AppEntry, Rect?) -> Unit,
     onTogglePin: (AppEntry) -> Unit,
     onAppInfo: (AppEntry) -> Unit,
+    onLaunchFloating: ((AppEntry) -> Unit)?,
 ) {
     var menuOpen by remember { mutableStateOf(false) }
     val haptics = LocalHapticFeedback.current
@@ -345,6 +369,8 @@ private fun DrawerAppRow(
                     stringResource(if (isPinned) R.string.action_unpin else R.string.action_pin),
                 ) { onTogglePin(entry) },
                 AppAction(stringResource(R.string.action_app_info)) { onAppInfo(entry) },
+            ) + listOfNotNull(
+                onLaunchFloating?.let { floating -> AppAction(stringResource(R.string.action_floating)) { floating(entry) } },
             ),
         )
     }
@@ -361,8 +387,11 @@ private class PullToCloseConnection(
     private var pulled = 0f
     private var flinging = false
 
+    /** Set per gesture: true only when the touch started with the list already at the top. */
+    var armed = false
+
     override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-        if (flinging) return Offset.Zero
+        if (flinging || !armed) return Offset.Zero
         if (available.y > 0f) {
             pulled += available.y
             if (pulled >= thresholdPx) {

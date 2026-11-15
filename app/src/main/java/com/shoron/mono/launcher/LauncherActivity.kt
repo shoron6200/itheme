@@ -19,6 +19,7 @@ import com.shoron.mono.wallpaper.LocalWallpaperLoader
 import com.shoron.mono.core.theme.MonoTheme
 import com.shoron.mono.monoContainer
 import com.shoron.mono.settings.SettingsActivity
+import com.shoron.mono.setup.SetupStore
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 /** The HOME activity. Single instance, never in recents, no restart on config changes. */
@@ -33,6 +34,10 @@ class LauncherActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
         hideStatusBar()
+        // One-time setup assistant on first launch (also reachable from Settings later).
+        if (savedInstanceState == null && !SetupStore(this).onboardingDone) {
+            startActivity(SettingsActivity.onboardingIntent(this))
+        }
         val container = monoContainer
         setContent {
             MonoTheme {

@@ -5,6 +5,7 @@ import android.graphics.Rect
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.mandatorySystemGestures
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -132,6 +133,8 @@ fun HomeScreen(
     val density = LocalDensity.current
     val swipeDownThresholdPx = with(density) { 72.dp.toPx() }
     val directionSlopPx = with(density) { 6.dp.toPx() }
+    val bottomEdgePx = WindowInsets.mandatorySystemGestures.getBottom(density).toFloat()
+    val topEdgePx = with(density) { 12.dp.toPx() }
     val cutout = rememberTopCutout()
 
     BoxWithConstraints(
@@ -149,12 +152,15 @@ fun HomeScreen(
                 var total = 0f
                 var direction = 0 // -1 = up (drawer), 1 = down (swipe-down action)
                 detectVerticalDragGestures(
-                    onDragStart = {
+                    onDragStart = { start ->
                         total = 0f
-                        direction = 0
                         tracker.resetTracking()
+                        // Leave Android's edges alone: the bottom navigation-gesture strip (Home /
+                        // Recents) and the top edge (status bar). Those drags are ignored here.
+                        direction = if (start.y < topEdgePx || start.y > size.height - bottomEdgePx) IGNORE else 0
                     },
                     onVerticalDrag = { change, amount ->
+                        if (direction == IGNORE) return@detectVerticalDragGestures
                         change.consume()
                         tracker.addPosition(change.uptimeMillis, change.position)
                         total += amount
@@ -227,7 +233,11 @@ class HomeActions(
     val onSwipeDown: () -> Unit,
     val onOpenSettings: () -> Unit,
     val onRefreshWeather: () -> Unit,
+    /** Null when the device has no freeform-window support (then the option is hidden). */
+    val onLaunchFloating: ((AppEntry) -> Unit)? = null,
 )
+
+private const val IGNORE = 99
 
 @Composable
 private fun TopRow(widgets: HomeWidgets, metrics: LayoutMetrics, cutout: TopCutout) {
@@ -522,6 +532,10 @@ private fun HomeAppRow(
                 AppAction(stringResource(R.string.action_unpin)) { actions.onUnpin(entry) },
                 AppAction(stringResource(R.string.action_app_info)) { actions.onAppInfo(entry) },
                 AppAction(stringResource(R.string.action_edit_home), actions.onEnterEdit),
+            ) + listOfNotNull(
+                actions.onLaunchFloating?.let { floating ->
+                    AppAction(stringResource(R.string.action_floating)) { floating(entry) }
+                },
             ),
         )
     }

@@ -30,4 +30,12 @@ Everything under `app/src/main/res/drawable/ic_mono_*.xml` and
 4. Commit the SVG, manifest and generated files. CI runs `--check` and fails if anything is
    invalid, missing or stale.
 
-Settings → Home & gestures → Icons lists installed apps that still use their original icon.
+## Batches from your missing-app list
+1. On the phone: MONO settings → Icons → (filter/select) → export TXT, CSV or JSON.
+2. `python3 tools/icons/plan_batch.py mono-missing-icons.json --size 20` — removes packages that
+   are already mapped and merges duplicate packages; `--write` saves
+   `batches/batch-NN.json` plans (name, label, packages).
+3. Draw each planned icon as `svg/<name>.svg`, move its entry into `manifest.json`, run
+   `build_icons.py`, review the `--preview` sheet, commit. Existing icons are never touched.
+
+MONO settings → Icons lists installed apps that still use their original icon.
