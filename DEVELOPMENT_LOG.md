@@ -49,8 +49,13 @@ audit + Android platform behaviour; device-only behaviour is listed as unverifie
 - Batch 2: 19 icons drawn + reviewed on a rendered contact sheet; ChatGPT knot chosen from six
   computed variants. Library validated by `build_icons.py --check` (39 icons).
 
-### Build results
-- _Pending GitHub Actions run._
+### Build results (from GitHub Actions)
+- Run #16 (`5760986`, run id 43685212872) — **success** on first attempt: icon library
+  `--check` (39 icons), unit tests (incl. new `MissingIconsExportTest`, updated icon tests),
+  debug APK `mono-debug-16`, final APK `MONO-final-16` (R8, ~2.1 MB zip). The final APK is still
+  signed with the temporary CI key ("CN=Android Debug"): the `MONO_*` secrets are not set yet.
+- **Not verified on the Realme 9 SE**: previous-app restoration, double-tap/pocket/idle
+  screen-off, stock-launcher-after-standby, battery drain. Use Settings → About → Diagnostics.
 
 ## 2026-11-14 — Thin Line icon engine
 
