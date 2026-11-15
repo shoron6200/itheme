@@ -4,6 +4,29 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Fixed — stability & power
+- Unlocking (fingerprint, PIN, swipe) returns to the app you were using — ChatGPT, Chrome or
+  MONO home — instead of always opening MONO.
+- MONO lock screen turns the display off after a short idle time (default 10 s, 5–60 s), so the
+  screen no longer stays on after lift-to-wake.
+- Double-tap the MONO lock screen to turn the display off (needs "MONO screen off" in
+  Accessibility; works like the power button, fingerprint unlock keeps working).
+- Pocket protection: while the proximity sensor is covered, the lock screen ignores touches and
+  turns the display off after 1.5 s. Sensor active only while the lock screen is visible.
+- Battery: radial clock redraws only its seconds layer each second; the unlock check runs for at
+  most 12 s after waking (was continuous 4x/s while shown).
+- Settings → Lock screen: battery-optimisation status/request and Realme background-activity
+  shortcut (helps prevent the stock launcher flashing up after long standby).
+- Settings → About → Diagnostics: on-device counters (process starts, lock shows, screen-off
+  requests, pocket events, seconds ticks, weather requests, wallpaper decodes).
+
+### Added — icons
+- Settings → Icons: supported/missing counts, searchable missing list with package names,
+  All/Installed/System filters, multi-select, copy names / packages / both, export TXT/CSV/JSON.
+- Batch 2: 19 new Thin Line icons — Contacts, Calculator, Gallery, Music, Notes, Weather,
+  Recorder, Google, Gemini, ChatGPT, X, TikTok, Snapchat, LinkedIn, Netflix, Discord, Keep,
+  Meet, Translate (39 total).
+
 ### Added — Final MONO build
 - Every CI build now also produces the final app, **MONO** (`com.shoron.mono`, version
   1.0.<build>), R8-optimised, as the `MONO-final-<n>` artifact. Signed with the MONO release key

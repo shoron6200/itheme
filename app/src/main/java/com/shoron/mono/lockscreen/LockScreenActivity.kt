@@ -8,7 +8,22 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.PowerManager
+import android.os.SystemClock
+import android.widget.Toast
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import com.shoron.mono.R
+import com.shoron.mono.data.LockSettings
+import com.shoron.mono.power.Diagnostics
+import com.shoron.mono.power.ScreenControl
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -40,17 +55,28 @@ import com.shoron.mono.wallpaper.LocalWallpaperLoader
  * system's own PIN / pattern / password / biometric prompt. If the phone is unlocked any other
  * way (e.g. fingerprint), it closes itself.
  */
-class LockScreenActivity : ComponentActivity() {
+class LockScreenActivity : ComponentActivity(), SensorEventListener {
 
     private val keyguard by lazy { getSystemService(KeyguardManager::class.java) }
     private val power by lazy { getSystemService(PowerManager::class.java) }
+    private val sensors by lazy { getSystemService(SensorManager::class.java) }
     private var preview = false
     private var leaving = false
+
+    /** Latest lock-screen settings (position, contrast, power behaviour). */
+    private var settings = LockSettings()
+
+    /** Elapsed-realtime of the last touch, for the idle screen-off timeout. */
+    private val lastInteraction = MutableStateFlow(SystemClock.elapsedRealtime())
+
+    /** True while the proximity sensor is covered (pocket / face-down): touches are blocked. */
+    private val pocketCovered = mutableStateOf(false)
+    private var pocketSleepJob: Job? = null
 
     private val unlockedReceiver = object : BroadcastReceiver() {
         // Fingerprint/face unlock while MONO's screen was on top.
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (!preview) goHome()
+            if (!preview) leave()
         }
     }
 
@@ -92,14 +118,34 @@ class LockScreenActivity : ComponentActivity() {
         } else {
             registerReceiver(unlockedReceiver, filter)
         }
-        // Safety net for OEM builds that delay or drop USER_PRESENT: while this screen is
-        // resumed (screen on), check the keyguard a few times a second and leave as soon as the
-        // phone is unlocked. Stops automatically when paused or when the screen turns off.
+        // Keep a copy of the lock settings (power behaviour, pocket, idle timeout).
+        lifecycleScope.launch {
+            monoContainer.widgetPreferences.lock.collect { settings = it }
+        }
+        // Safety net for OEM builds that delay or drop USER_PRESENT: for a few seconds after the
+        // screen comes on (when a fingerprint unlock happens), check whether the keyguard is gone.
+        // Bounded and screen-on only — previously this polled 4x/s for as long as it was resumed.
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                while (true) {
-                    if (!preview && power.isInteractive && !keyguard.isKeyguardLocked) goHome()
+                val until = SystemClock.elapsedRealtime() + UNLOCK_WATCH_MS
+                while (SystemClock.elapsedRealtime() < until && power.isInteractive) {
+                    Diagnostics.count(Diagnostics.LOCK_UNLOCK_CHECKS)
+                    if (!preview && !keyguard.isKeyguardLocked) {
+                        leave()
+                        break
+                    }
                     delay(UNLOCK_CHECK_MS)
+                }
+            }
+        }
+        // Idle timeout: while MONO covers the keyguard, Android applies the normal screen timeout
+        // (often 30 s-2 min) instead of the short lock-screen one — the screen stayed on after
+        // lift-to-wake and drained battery. Turn it off after the configured idle time instead.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                lastInteraction.collectLatest {
+                    delay(settings.idleTimeoutSeconds * 1000L)
+                    if (power.isInteractive) sleepOrHandOff()
                 }
             }
         }
@@ -110,7 +156,11 @@ class LockScreenActivity : ComponentActivity() {
         setContent {
             MonoTheme {
                 CompositionLocalProvider(LocalWallpaperLoader provides container.wallpaperRepository) {
-                    LockScreenRoute(onUnlock = ::unlock)
+                    LockScreenRoute(
+                        onUnlock = ::unlock,
+                        onDoubleTap = ::onDoubleTap,
+                        pocketCovered = pocketCovered,
+                    )
                 }
             }
         }
@@ -134,9 +184,80 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Already unlocked (e.g. fingerprint on the power button woke and unlocked the phone,
-        // or the lock delay had not elapsed): go straight to MONO home, no extra swipe.
-        if (!preview && power.isInteractive && !keyguard.isKeyguardLocked) goHome()
+        Diagnostics.count(Diagnostics.LOCK_SHOWN)
+        lastInteraction.value = SystemClock.elapsedRealtime()
+        // Already unlocked (e.g. fingerprint on the power button woke and unlocked the phone):
+        // get out of the way so the previous app (or MONO home) is shown — no extra swipe.
+        if (!preview && power.isInteractive && !keyguard.isKeyguardLocked) {
+            leave()
+            return
+        }
+        // Proximity listener only while this screen is visible; released in onPause.
+        if (settings.pocketProtection) {
+            sensors?.getDefaultSensor(Sensor.TYPE_PROXIMITY)?.let {
+                sensors?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+            }
+        }
+    }
+
+    override fun onPause() {
+        sensors?.unregisterListener(this)
+        pocketSleepJob?.cancel()
+        pocketCovered.value = false
+        super.onPause()
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        if (!pocketCovered.value) lastInteraction.value = SystemClock.elapsedRealtime()
+    }
+
+    // ------------------------------------------------------------------ pocket protection
+
+    override fun onSensorChanged(event: SensorEvent) {
+        if (event.sensor.type != Sensor.TYPE_PROXIMITY) return
+        val covered = event.values.firstOrNull()?.let { it < event.sensor.maximumRange.coerceAtMost(5f) } ?: false
+        if (covered == pocketCovered.value) return
+        pocketCovered.value = covered
+        pocketSleepJob?.cancel()
+        if (covered) {
+            Diagnostics.count(Diagnostics.POCKET_EVENTS)
+            // Still covered after a moment: the phone woke in a pocket — turn the screen off.
+            pocketSleepJob = lifecycleScope.launch {
+                delay(POCKET_SLEEP_MS)
+                if (pocketCovered.value && power.isInteractive) sleepOrHandOff()
+            }
+        } else {
+            lastInteraction.value = SystemClock.elapsedRealtime()
+        }
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+
+    // ------------------------------------------------------------------ power actions
+
+    private fun onDoubleTap() {
+        if (preview || !settings.doubleTapToSleep) return
+        if (!ScreenControl.sleep()) {
+            Toast.makeText(this, R.string.lock_double_tap_needs_access, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Turn the display off. With MONO's accessibility service this is like the power button
+     * (MONO's lock screen stays for the next wake). Without it, step aside so Android's own
+     * lock screen — with its short timeout and the OEM pocket handling — takes over.
+     */
+    private fun sleepOrHandOff() {
+        if (preview) {
+            finish()
+            return
+        }
+        if (!keyguard.isKeyguardLocked) {
+            leave()
+            return
+        }
+        if (!ScreenControl.sleep()) finish()
     }
 
     override fun onDestroy() {
@@ -150,7 +271,7 @@ class LockScreenActivity : ComponentActivity() {
             return
         }
         if (!keyguard.isKeyguardLocked) {
-            goHome()
+            leave()
             return
         }
         // Android shows its own PIN / pattern / password / biometric prompt.
@@ -158,7 +279,7 @@ class LockScreenActivity : ComponentActivity() {
             this,
             object : KeyguardManager.KeyguardDismissCallback() {
                 override fun onDismissSucceeded() {
-                    goHome()
+                    leave()
                 }
 
                 override fun onDismissCancelled() {
@@ -174,18 +295,14 @@ class LockScreenActivity : ComponentActivity() {
     }
 
     /**
-     * After a successful unlock, bring MONO's home screen to the front, then close this screen
-     * without animation, so no app or second lock screen is left in between. Guarded so it
-     * runs once per unlock.
+     * After an unlock, simply close this screen (no animation). Its task sits on top of the
+     * task that was in front when the screen turned off, so Android returns to exactly that:
+     * ChatGPT stays ChatGPT, Chrome stays Chrome, MONO home stays MONO home. (The previous
+     * version started MONO's HOME intent here, which is why apps were replaced by MONO.)
      */
-    private fun goHome() {
+    private fun leave() {
         if (leaving || isFinishing) return
         leaving = true
-        val home = Intent(Intent.ACTION_MAIN)
-            .addCategory(Intent.CATEGORY_HOME)
-            .setPackage(packageName)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        runCatching { startActivity(home) }
         finish()
         @Suppress("DEPRECATION")
         overridePendingTransition(0, 0)
@@ -193,7 +310,9 @@ class LockScreenActivity : ComponentActivity() {
 
     companion object {
         private const val EXTRA_PREVIEW = "preview"
-        private const val UNLOCK_CHECK_MS = 250L
+        private const val UNLOCK_CHECK_MS = 300L
+        private const val UNLOCK_WATCH_MS = 12_000L
+        private const val POCKET_SLEEP_MS = 1_500L
 
         /** True while the MONO lock screen is on screen; prevents duplicate launches. */
         @Volatile
@@ -208,7 +327,11 @@ class LockScreenActivity : ComponentActivity() {
 }
 
 @Composable
-private fun LockScreenRoute(onUnlock: () -> Unit) {
+private fun LockScreenRoute(
+    onUnlock: () -> Unit,
+    onDoubleTap: () -> Unit,
+    pocketCovered: State<Boolean>,
+) {
     val viewModel: LockViewModel = viewModel(factory = LockViewModel.Factory)
     val wallpaper by viewModel.wallpaper.collectAsStateWithLifecycle()
     val lock by viewModel.lock.collectAsStateWithLifecycle()
@@ -245,5 +368,7 @@ private fun LockScreenRoute(onUnlock: () -> Unit) {
         media = media,
         mediaActions = mediaActions,
         onUnlock = onUnlock,
+        onDoubleTap = onDoubleTap,
+        pocketCovered = pocketCovered.value,
     )
 }

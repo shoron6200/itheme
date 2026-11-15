@@ -3,32 +3,367 @@
   "canvas": 48,
   "notes": "Central MONO Thin Line icon manifest. Each icon: an SVG in svg/<name>.svg plus how it maps to apps. 'packages' match every launchable activity of the package (when 'labels' is set and the package has several launcher activities, only activities whose label contains one of the words). 'components' match exact package/activity. 'role' also matches whatever app currently fills that system role on the device (dialer, sms, camera, settings, clock, calendar). Run python3 tools/icons/build_icons.py after editing.",
   "icons": [
-    { "name": "whatsapp",  "packages": ["com.whatsapp", "com.whatsapp.w4b"] },
-    { "name": "telegram",  "packages": ["org.telegram.messenger", "org.telegram.messenger.web", "org.thunderdog.challegram"] },
-    { "name": "chrome",    "packages": ["com.android.chrome", "com.chrome.beta", "com.chrome.dev", "com.chrome.canary"] },
-    { "name": "youtube",   "packages": ["com.google.android.youtube", "app.revanced.android.youtube"] },
-    { "name": "spotify",   "packages": ["com.spotify.music", "com.spotify.lite"] },
-    { "name": "instagram", "packages": ["com.instagram.android", "com.instagram.lite"] },
-    { "name": "facebook",  "packages": ["com.facebook.katana", "com.facebook.lite"] },
-    { "name": "messenger", "packages": ["com.facebook.orca", "com.facebook.mlite"] },
-    { "name": "gmail",     "packages": ["com.google.android.gm", "com.google.android.gm.lite"] },
-    { "name": "maps",      "packages": ["com.google.android.apps.maps", "com.google.android.apps.mapslite"], "labels": ["maps"] },
-    { "name": "photos",    "packages": ["com.google.android.apps.photos"] },
-    { "name": "camera",    "role": "camera", "labels": ["camera"],
-      "packages": ["com.oplus.camera", "com.coloros.camera", "com.android.camera", "com.android.camera2", "com.google.android.GoogleCamera", "com.sec.android.app.camera", "org.codeaurora.snapcam"] },
-    { "name": "phone",     "role": "dialer", "labels": ["phone", "dialer", "call"],
-      "packages": ["com.google.android.dialer", "com.android.dialer", "com.samsung.android.dialer"] },
-    { "name": "messages",  "role": "sms", "labels": ["message", "sms"],
-      "packages": ["com.google.android.apps.messaging", "com.android.mms", "com.android.messaging", "com.samsung.android.messaging"] },
-    { "name": "settings",  "role": "settings", "labels": ["settings"],
-      "packages": ["com.android.settings"] },
-    { "name": "playstore", "packages": ["com.android.vending"] },
-    { "name": "drive",     "packages": ["com.google.android.apps.docs"], "labels": ["drive"] },
-    { "name": "files",     "labels": ["file"],
-      "packages": ["com.google.android.apps.nbu.files", "com.android.documentsui", "com.coloros.filemanager", "com.oplus.filemanager", "com.sec.android.app.myfiles", "com.mi.android.globalFileexplorer"] },
-    { "name": "calendar",  "role": "calendar", "labels": ["calendar"],
-      "packages": ["com.google.android.calendar", "com.coloros.calendar", "com.android.calendar", "com.samsung.android.calendar"] },
-    { "name": "clock",     "role": "clock", "labels": ["clock", "alarm"],
-      "packages": ["com.google.android.deskclock", "com.android.deskclock", "com.coloros.alarmclock", "com.oplus.alarmclock", "com.sec.android.app.clockpackage"] }
+    {
+      "name": "whatsapp",
+      "packages": [
+        "com.whatsapp",
+        "com.whatsapp.w4b"
+      ]
+    },
+    {
+      "name": "telegram",
+      "packages": [
+        "org.telegram.messenger",
+        "org.telegram.messenger.web",
+        "org.thunderdog.challegram"
+      ]
+    },
+    {
+      "name": "chrome",
+      "packages": [
+        "com.android.chrome",
+        "com.chrome.beta",
+        "com.chrome.dev",
+        "com.chrome.canary"
+      ]
+    },
+    {
+      "name": "youtube",
+      "packages": [
+        "com.google.android.youtube",
+        "app.revanced.android.youtube"
+      ]
+    },
+    {
+      "name": "spotify",
+      "packages": [
+        "com.spotify.music",
+        "com.spotify.lite"
+      ]
+    },
+    {
+      "name": "instagram",
+      "packages": [
+        "com.instagram.android",
+        "com.instagram.lite"
+      ]
+    },
+    {
+      "name": "facebook",
+      "packages": [
+        "com.facebook.katana",
+        "com.facebook.lite"
+      ]
+    },
+    {
+      "name": "messenger",
+      "packages": [
+        "com.facebook.orca",
+        "com.facebook.mlite"
+      ]
+    },
+    {
+      "name": "gmail",
+      "packages": [
+        "com.google.android.gm",
+        "com.google.android.gm.lite"
+      ]
+    },
+    {
+      "name": "maps",
+      "packages": [
+        "com.google.android.apps.maps",
+        "com.google.android.apps.mapslite"
+      ],
+      "labels": [
+        "maps"
+      ]
+    },
+    {
+      "name": "photos",
+      "packages": [
+        "com.google.android.apps.photos"
+      ]
+    },
+    {
+      "name": "camera",
+      "role": "camera",
+      "labels": [
+        "camera"
+      ],
+      "packages": [
+        "com.oplus.camera",
+        "com.coloros.camera",
+        "com.android.camera",
+        "com.android.camera2",
+        "com.google.android.GoogleCamera",
+        "com.sec.android.app.camera",
+        "org.codeaurora.snapcam"
+      ]
+    },
+    {
+      "name": "phone",
+      "role": "dialer",
+      "labels": [
+        "phone",
+        "dialer",
+        "call"
+      ],
+      "packages": [
+        "com.google.android.dialer",
+        "com.android.dialer",
+        "com.samsung.android.dialer"
+      ]
+    },
+    {
+      "name": "messages",
+      "role": "sms",
+      "labels": [
+        "message",
+        "sms"
+      ],
+      "packages": [
+        "com.google.android.apps.messaging",
+        "com.android.mms",
+        "com.android.messaging",
+        "com.samsung.android.messaging"
+      ]
+    },
+    {
+      "name": "settings",
+      "role": "settings",
+      "labels": [
+        "settings"
+      ],
+      "packages": [
+        "com.android.settings"
+      ]
+    },
+    {
+      "name": "playstore",
+      "packages": [
+        "com.android.vending"
+      ]
+    },
+    {
+      "name": "drive",
+      "packages": [
+        "com.google.android.apps.docs"
+      ],
+      "labels": [
+        "drive"
+      ]
+    },
+    {
+      "name": "files",
+      "labels": [
+        "file"
+      ],
+      "packages": [
+        "com.google.android.apps.nbu.files",
+        "com.android.documentsui",
+        "com.coloros.filemanager",
+        "com.oplus.filemanager",
+        "com.sec.android.app.myfiles",
+        "com.mi.android.globalFileexplorer"
+      ]
+    },
+    {
+      "name": "calendar",
+      "role": "calendar",
+      "labels": [
+        "calendar"
+      ],
+      "packages": [
+        "com.google.android.calendar",
+        "com.coloros.calendar",
+        "com.android.calendar",
+        "com.samsung.android.calendar"
+      ]
+    },
+    {
+      "name": "clock",
+      "role": "clock",
+      "labels": [
+        "clock",
+        "alarm"
+      ],
+      "packages": [
+        "com.google.android.deskclock",
+        "com.android.deskclock",
+        "com.coloros.alarmclock",
+        "com.oplus.alarmclock",
+        "com.sec.android.app.clockpackage"
+      ]
+    },
+    {
+      "name": "contacts",
+      "labels": [
+        "contact"
+      ],
+      "packages": [
+        "com.google.android.contacts",
+        "com.android.contacts",
+        "com.samsung.android.app.contacts"
+      ]
+    },
+    {
+      "name": "calculator",
+      "labels": [
+        "calculator"
+      ],
+      "packages": [
+        "com.google.android.calculator",
+        "com.coloros.calculator",
+        "com.oplus.calculator",
+        "com.android.calculator2",
+        "com.sec.android.app.popupcalculator",
+        "com.miui.calculator"
+      ]
+    },
+    {
+      "name": "gallery",
+      "labels": [
+        "gallery",
+        "photo",
+        "album"
+      ],
+      "packages": [
+        "com.coloros.gallery3d",
+        "com.oplus.gallery",
+        "com.android.gallery3d",
+        "com.sec.android.gallery3d",
+        "com.miui.gallery",
+        "com.google.android.apps.photosgo"
+      ]
+    },
+    {
+      "name": "music",
+      "labels": [
+        "music"
+      ],
+      "packages": [
+        "com.heytap.music",
+        "com.oppo.music",
+        "com.android.music",
+        "com.sec.android.app.music",
+        "com.miui.player"
+      ]
+    },
+    {
+      "name": "notes",
+      "labels": [
+        "note"
+      ],
+      "packages": [
+        "com.coloros.note",
+        "com.oplus.note",
+        "com.samsung.android.app.notes",
+        "com.miui.notes"
+      ]
+    },
+    {
+      "name": "weather",
+      "labels": [
+        "weather"
+      ],
+      "packages": [
+        "com.coloros.weather2",
+        "com.oplus.weather2",
+        "com.sec.android.daemonapp",
+        "com.miui.weather2"
+      ]
+    },
+    {
+      "name": "recorder",
+      "labels": [
+        "record"
+      ],
+      "packages": [
+        "com.coloros.soundrecorder",
+        "com.oplus.soundrecorder",
+        "com.google.android.apps.recorder",
+        "com.android.soundrecorder",
+        "com.sec.android.app.voicenote"
+      ]
+    },
+    {
+      "name": "google",
+      "labels": [
+        "google"
+      ],
+      "packages": [
+        "com.google.android.googlequicksearchbox"
+      ]
+    },
+    {
+      "name": "gemini",
+      "packages": [
+        "com.google.android.apps.bard"
+      ]
+    },
+    {
+      "name": "chatgpt",
+      "packages": [
+        "com.openai.chatgpt"
+      ]
+    },
+    {
+      "name": "x",
+      "packages": [
+        "com.twitter.android"
+      ]
+    },
+    {
+      "name": "tiktok",
+      "packages": [
+        "com.zhiliaoapp.musically",
+        "com.ss.android.ugc.trill",
+        "com.zhiliaoapp.musically.go"
+      ]
+    },
+    {
+      "name": "snapchat",
+      "packages": [
+        "com.snapchat.android"
+      ]
+    },
+    {
+      "name": "linkedin",
+      "packages": [
+        "com.linkedin.android"
+      ]
+    },
+    {
+      "name": "netflix",
+      "packages": [
+        "com.netflix.mediaclient"
+      ]
+    },
+    {
+      "name": "discord",
+      "packages": [
+        "com.discord"
+      ]
+    },
+    {
+      "name": "keep",
+      "packages": [
+        "com.google.android.keep"
+      ]
+    },
+    {
+      "name": "meet",
+      "packages": [
+        "com.google.android.apps.tachyon",
+        "com.google.android.apps.meetings"
+      ]
+    },
+    {
+      "name": "translate",
+      "packages": [
+        "com.google.android.apps.translate"
+      ]
+    }
   ]
 }

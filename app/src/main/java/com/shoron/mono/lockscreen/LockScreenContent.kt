@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -92,15 +93,20 @@ fun LockScreenContent(
     media: MediaInfo?,
     mediaActions: MediaActions,
     onUnlock: () -> Unit,
+    onDoubleTap: () -> Unit,
+    pocketCovered: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val unlock by rememberUpdatedState(onUnlock)
+    val doubleTap by rememberUpdatedState(onDoubleTap)
     val thresholdPx = with(LocalDensity.current) { 72.dp.toPx() }
 
     Box(
         modifier
             .fillMaxSize()
             .background(MonoColors.Ink)
+            // Double-tap anywhere (outside the media card) turns the display off.
+            .pointerInput(Unit) { detectTapGestures(onDoubleTap = { doubleTap() }) }
             .pointerInput(thresholdPx) {
                 var dragged = 0f
                 detectVerticalDragGestures(
@@ -203,6 +209,20 @@ fun LockScreenContent(
                     style = TextStyle(color = MonoColors.Faint, fontFamily = Outfit, fontSize = 11.sp, letterSpacing = 1.sp),
                 )
             }
+        }
+
+        // Pocket protection: while the proximity sensor is covered, swallow every touch.
+        if (pocketCovered) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) awaitPointerEvent().changes.forEach { it.consume() }
+                        }
+                    },
+            )
         }
     }
 }

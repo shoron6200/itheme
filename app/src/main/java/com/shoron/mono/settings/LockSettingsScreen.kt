@@ -43,6 +43,7 @@ import com.shoron.mono.R
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.data.LockSettings
 import com.shoron.mono.lockscreen.LockScreenActivity
+import com.shoron.mono.power.ScreenControl
 import kotlinx.coroutines.launch
 
 /** MONO lock screen: enable, permission status, position, contrast, preview, wallpaper sync. */
@@ -55,7 +56,11 @@ fun LockSettingsScreen(onBack: () -> Unit) {
     var overlayAllowed by remember { mutableStateOf(viewModel.canShowLockFromBackground()) }
     var syncing by remember { mutableStateOf(false) }
     var mediaAllowed by remember { mutableStateOf(viewModel.hasMediaAccess()) }
+    var screenOffAccess by remember { mutableStateOf(ScreenControl.isAccessibilityEnabled(context)) }
+    var batteryExempt by remember { mutableStateOf(ScreenControl.isIgnoringBatteryOptimizations(context)) }
     LifecycleResumeEffect(Unit) {
+        screenOffAccess = ScreenControl.isAccessibilityEnabled(context)
+        batteryExempt = ScreenControl.isIgnoringBatteryOptimizations(context)
         overlayAllowed = viewModel.canShowLockFromBackground()
         mediaAllowed = viewModel.hasMediaAccess()
         onPauseOrDispose { }
@@ -83,6 +88,43 @@ fun LockSettingsScreen(onBack: () -> Unit) {
                 color = if (overlayAllowed) MonoColors.Muted else MonoColors.Foreground,
                 fontSize = 14.sp,
                 modifier = Modifier.clickable(enabled = !overlayAllowed) { openOverlaySettings(context) },
+            )
+
+            SettingsSectionTitle(stringResource(R.string.lock_power))
+            Text(
+                text = stringResource(if (screenOffAccess) R.string.lock_access_on else R.string.lock_access_off),
+                color = if (screenOffAccess) MonoColors.Muted else MonoColors.Foreground,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .clickable { ScreenControl.openAccessibilitySettings(context) }
+                    .padding(vertical = 4.dp),
+            )
+            SwitchRow(stringResource(R.string.lock_double_tap), lock.doubleTapToSleep) { on ->
+                viewModel.updateLock { it.copy(doubleTapToSleep = on) }
+            }
+            SwitchRow(stringResource(R.string.lock_pocket), lock.pocketProtection) { on ->
+                viewModel.updateLock { it.copy(pocketProtection = on) }
+            }
+            SliderRow(
+                stringResource(R.string.lock_idle, lock.idleTimeoutSeconds),
+                lock.idleTimeoutSeconds.toFloat(),
+                LockSettings.IDLE_RANGE.first.toFloat()..LockSettings.IDLE_RANGE.last.toFloat(),
+            ) { v -> viewModel.updateLock { it.copy(idleTimeoutSeconds = v.toInt()) } }
+            Text(
+                text = stringResource(if (batteryExempt) R.string.lock_battery_opt_on else R.string.lock_battery_opt_off),
+                color = if (batteryExempt) MonoColors.Muted else MonoColors.Foreground,
+                fontSize = 14.sp,
+                modifier = Modifier
+                    .clickable(enabled = !batteryExempt) { ScreenControl.requestIgnoreBatteryOptimizations(context) }
+                    .padding(vertical = 6.dp),
+            )
+            Text(
+                text = stringResource(R.string.lock_realme_bg),
+                color = MonoColors.Muted,
+                fontSize = 13.sp,
+                modifier = Modifier
+                    .clickable { ScreenControl.openAppInfo(context) }
+                    .padding(vertical = 4.dp),
             )
 
             SettingsSectionTitle(stringResource(R.string.lock_media))

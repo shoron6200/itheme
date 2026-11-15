@@ -2,6 +2,56 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-15 — Stability, power and icon system
+
+No physical device or emulator is available to this workflow, so findings below come from code
+audit + Android platform behaviour; device-only behaviour is listed as unverified.
+
+### Audit (before changes)
+- No wake locks, FLAG_KEEP_SCREEN_ON, foreground services or sensor listeners anywhere.
+- **Screen-on time (largest drain, also the lift-to-wake bug):** while MONO's showWhenLocked
+  activity occludes the keyguard, Android applies the user's normal screen timeout instead of
+  the lock screen's short one, so every wake (lift, double-tap, notification) kept the display on
+  for 30 s–2 min. Fix: own idle timeout (default 10 s) → `GLOBAL_ACTION_LOCK_SCREEN` via an
+  event-less accessibility service, or hand over to Android's keyguard (finish) if not enabled.
+- **Unlock check loop** (added last round): 4 binder calls/s for as long as the lock screen was
+  resumed. Now ≤12 s after each resume, screen-on only, 300 ms period (≤40 checks per wake).
+- **Radial dial**: 60 ticks + 12 labels re-rendered every second because the ring crept 0.1°/s.
+  Now the ring is its own layer redrawn once per minute; seconds dot + digits are a second tiny
+  layer with pre-measured digits (no text layout per tick).
+- Weather (hourly WorkManager + 30-min stale check on visible), media monitoring (visible only),
+  wallpaper (decode once, LRU) — no change needed. Counters added to measure on device.
+
+### Previous-app restoration
+- Root cause: last round's `goHome()` started MONO's HOME intent on every unlock. Now `leave()`
+  only finishes the lock activity (no animation); its separate task sits above whatever task
+  was in front at screen-off, so Android returns to ChatGPT/Chrome/MONO home as appropriate.
+  Fingerprint path still covered by the exported USER_PRESENT receiver + bounded check.
+
+### Double-tap / pocket / lift
+- Screen-off options: DevicePolicyManager.lockNow() rejected (forces PIN next unlock → disables
+  fingerprint); accessibility `GLOBAL_ACTION_LOCK_SCREEN` (API 28+) behaves like the power key.
+- Double-tap-to-wake and lift-to-wake are Realme firmware features (screen off → app cannot see
+  or block them). Realme's pocket check happens in its keyguard/firmware at wake; MONO now adds
+  its own proximity guard while its lock screen is visible (registered onResume, released
+  onPause; no polling).
+
+### Stock launcher after long standby
+- Likely causes (cannot be confirmed without the device): ColorOS freezes/kills the MONO process
+  during deep standby; on unlock the system must cold-start the Home app and may briefly show
+  its own launcher. MONO does not launch HOME itself anymore. Mitigations: battery-optimisation
+  exemption request + Realme background-activity shortcut; `Diagnostics` persists process starts
+  so the user can see whether MONO is being killed. No background service added.
+
+### Icons
+- Settings → Icons page (counts, search, filters, multi-select, copy, SAF export TXT/CSV/JSON);
+  `MissingIconsExport` is pure and JVM-tested (CSV quoting, JSON validated with org.json).
+- Batch 2: 19 icons drawn + reviewed on a rendered contact sheet; ChatGPT knot chosen from six
+  computed variants. Library validated by `build_icons.py --check` (39 icons).
+
+### Build results
+- _Pending GitHub Actions run._
+
 ## 2026-11-14 — Thin Line icon engine
 
 - **Pipeline**: `design/icons/svg/*.svg` + `manifest.json` → `tools/icons/build_icons.py` →

@@ -122,5 +122,36 @@
 
     <string name="icons_title">Icons</string>
     <string name="icons_thin_line">MONO Thin Line icons</string>
-    <string name="icons_summary">%1$d apps use Thin Line icons · %2$d keep their original icon (tap to list)</string>
+
+    <string name="accessibility_label">MONO screen off</string>
+    <string name="accessibility_description">Lets MONO turn the display off like the power button: double-tap the MONO lock screen, idle timeout and pocket protection. MONO does not read the screen, your input or any app content, and it receives no accessibility events.</string>
+    <string name="lock_double_tap_needs_access">Turn on "MONO screen off" in Accessibility to use double-tap to sleep</string>
+    <string name="lock_power">Power &amp; sensors</string>
+    <string name="lock_double_tap">Double-tap to turn screen off</string>
+    <string name="lock_pocket">Pocket protection (proximity sensor)</string>
+    <string name="lock_idle">Turn screen off after %1$d s without touch</string>
+    <string name="lock_access_on">Screen-off access is on.</string>
+    <string name="lock_access_off">Screen-off access is off: double-tap and pocket sleep need "MONO screen off" in Accessibility. Without it, MONO hands over to Android\'s lock screen to sleep. Tap to open.</string>
+    <string name="lock_battery_opt_on">Battery optimisation: MONO is exempt (recommended for a Home app).</string>
+    <string name="lock_battery_opt_off">Battery optimisation is restricting MONO. Realme may freeze it during long standby, which can briefly show the stock launcher. Tap to allow.</string>
+    <string name="lock_realme_bg">Realme: App info → Battery usage → allow background activity</string>
+    <string name="settings_diagnostics">Diagnostics (since MONO started)</string>
+
+    <string name="icons_counts">%1$d apps have Thin Line icons · %2$d still use their original icon</string>
+    <string name="icons_missing">Missing icons</string>
+    <string name="icons_search_hint">Search app or package</string>
+    <string name="icons_filter_all">All</string>
+    <string name="icons_filter_user">Installed</string>
+    <string name="icons_filter_system">System</string>
+    <string name="icons_selection">%1$d selected · %2$d shown</string>
+    <string name="icons_select_all">Select all</string>
+    <string name="icons_clear">Clear</string>
+    <string name="icons_copy_names">Copy names</string>
+    <string name="icons_copy_packages">Copy packages</string>
+    <string name="icons_copy_both">Copy name + package</string>
+    <string name="icons_copy">Copy</string>
+    <string name="icons_copied">Copied</string>
+    <string name="icons_exported">Exported</string>
+    <string name="icons_export_failed">Export failed</string>
+    <string name="icons_actions_note">Copy and export use the selected apps, or every app shown when nothing is selected.</string>
 </resources>

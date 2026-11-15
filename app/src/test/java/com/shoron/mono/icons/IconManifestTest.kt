@@ -11,6 +11,10 @@ class IconManifestTest {
         "whatsapp", "telegram", "chrome", "youtube", "spotify", "instagram", "facebook", "messenger",
         "gmail", "maps", "photos", "camera", "phone", "messages", "settings", "playstore", "drive",
         "files", "calendar", "clock",
+        // batch 2
+        "contacts", "calculator", "gallery", "music", "notes", "weather", "recorder", "google",
+        "gemini", "chatgpt", "x", "tiktok", "snapchat", "linkedin", "netflix", "discord", "keep",
+        "meet", "translate",
     )
 
     @Test fun initialLibraryIsComplete() {

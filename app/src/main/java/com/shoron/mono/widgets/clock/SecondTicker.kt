@@ -1,5 +1,6 @@
 package com.shoron.mono.widgets.clock
 
+import com.shoron.mono.power.Diagnostics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -15,6 +16,7 @@ object SecondTicker {
         while (true) {
             val now = LocalTime.now()
             emit(now)
+            Diagnostics.count(Diagnostics.SECOND_TICKS)
             delay(1_000L - now.nano / 1_000_000L)
         }
     }

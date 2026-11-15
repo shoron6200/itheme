@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.shoron.mono.power.Diagnostics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -52,6 +53,7 @@ class WallpaperRepository(
         if (widthPx <= 0 || heightPx <= 0) return null
         val key = "${sourceKey(settings)}@${widthPx}x$heightPx"
         cache.get(key)?.let { return it }
+        Diagnostics.count(Diagnostics.WALLPAPER_DECODES)
         val bitmap = withContext(Dispatchers.IO) {
             runCatching { decode(sourceOf(settings), widthPx, heightPx) }.getOrNull()
         } ?: return null

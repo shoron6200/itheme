@@ -53,8 +53,10 @@ import com.shoron.mono.R
 import com.shoron.mono.apps.AppIcon
 import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.data.PinList
+import com.shoron.mono.power.Diagnostics
+import com.shoron.mono.power.ScreenControl
 
-private enum class SettingsPage { Main, Wallpaper, Widgets, Lock, Home }
+private enum class SettingsPage { Main, Wallpaper, Widgets, Lock, Home, Icons }
 
 /** Two-page settings flow without a navigation library: main list and wallpaper editor. */
 @Composable
@@ -68,11 +70,13 @@ fun SettingsNavHost(onExit: () -> Unit) {
             onOpenWidgets = { page = SettingsPage.Widgets },
             onOpenLock = { page = SettingsPage.Lock },
             onOpenHome = { page = SettingsPage.Home },
+            onOpenIcons = { page = SettingsPage.Icons },
         )
         SettingsPage.Wallpaper -> WallpaperScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Widgets -> WidgetsScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Lock -> LockSettingsScreen(onBack = { page = SettingsPage.Main })
         SettingsPage.Home -> HomeSettingsScreen(onBack = { page = SettingsPage.Main })
+        SettingsPage.Icons -> IconsScreen(onBack = { page = SettingsPage.Main })
     }
 }
 
@@ -83,6 +87,7 @@ fun SettingsScreen(
     onOpenWidgets: () -> Unit,
     onOpenLock: () -> Unit,
     onOpenHome: () -> Unit,
+    onOpenIcons: () -> Unit,
 ) {
     val viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory)
     val pinned by viewModel.pinnedApps.collectAsStateWithLifecycle()
@@ -158,6 +163,7 @@ fun SettingsScreen(
             NavRow(stringResource(R.string.settings_widgets), onOpenWidgets)
             NavRow(stringResource(R.string.settings_lock), onOpenLock)
             NavRow(stringResource(R.string.settings_home_gestures), onOpenHome)
+            NavRow(stringResource(R.string.icons_title), onOpenIcons)
             Spacer(Modifier.height(24.dp))
         }
 
@@ -228,6 +234,8 @@ fun SettingsScreen(
                 color = MonoColors.Muted,
                 fontSize = 14.sp,
             )
+            Spacer(Modifier.height(12.dp))
+            DiagnosticsBlock()
             Spacer(Modifier.height(8.dp))
             Text(
                 text = stringResource(R.string.settings_licenses),
@@ -236,6 +244,36 @@ fun SettingsScreen(
             )
         }
     }
+}
+
+/** On-device measurements for battery/lifecycle investigation. */
+@Composable
+private fun DiagnosticsBlock() {
+    val context = LocalContext.current
+    val lines = remember {
+        buildList {
+            add("MONO process starts (all time): ${Diagnostics.persistedProcessStarts}")
+            add("Process uptime: ${Diagnostics.uptimeMinutes()} min")
+            add("Lock screen shown: ${Diagnostics.value(Diagnostics.LOCK_SHOWN)}")
+            add("Unlock checks: ${Diagnostics.value(Diagnostics.LOCK_UNLOCK_CHECKS)}")
+            add("Screen-off requests: ${Diagnostics.value(Diagnostics.SCREEN_OFF_REQUESTS)}")
+            add("Pocket detections: ${Diagnostics.value(Diagnostics.POCKET_EVENTS)}")
+            add("Seconds ticks: ${Diagnostics.value(Diagnostics.SECOND_TICKS)}")
+            add("Weather requests: ${Diagnostics.value(Diagnostics.WEATHER_REQUESTS)}")
+            add("Wallpaper decodes: ${Diagnostics.value(Diagnostics.WALLPAPER_DECODES)}")
+            add("Battery optimisation exempt: ${ScreenControl.isIgnoringBatteryOptimizations(context)}")
+            add("Screen-off access: ${ScreenControl.isAccessibilityEnabled(context)}")
+        }
+    }
+    Text(
+        stringResource(R.string.settings_diagnostics).uppercase(),
+        color = MonoColors.Faint,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.4.sp,
+    )
+    Spacer(Modifier.height(6.dp))
+    lines.forEach { Text(it, color = MonoColors.Muted, fontSize = 12.sp) }
 }
 
 @Composable

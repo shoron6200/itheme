@@ -17,6 +17,7 @@ import androidx.work.WorkerParameters
 import com.shoron.mono.data.WidgetPreferences
 import com.shoron.mono.data.WidgetSettings
 import com.shoron.mono.monoContainer
+import com.shoron.mono.power.Diagnostics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -66,6 +67,7 @@ class WeatherRepository(
             cached.unit == settings.temperatureUnit &&
             now - cached.fetchedAtMillis < STALE_MS
         if (!force && cacheValid) return true
+        Diagnostics.count(Diagnostics.WEATHER_REQUESTS)
         val result = runCatching {
             val body = httpGet(OpenMeteo.forecastUrl(place.latitude, place.longitude, settings.temperatureUnit))
             OpenMeteo.parseForecast(body, place, settings.temperatureUnit, now)

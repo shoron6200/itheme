@@ -20,6 +20,9 @@ class IconMatcherTest {
         assertEquals("youtube", match("com.google.android.youtube"))
         assertEquals("playstore", match("com.android.vending"))
         assertEquals("drive", match("com.google.android.apps.docs", label = "Drive"))
+        assertEquals("chatgpt", match("com.openai.chatgpt"))
+        assertEquals("x", match("com.twitter.android"))
+        assertEquals("tiktok", match("com.zhiliaoapp.musically"))
     }
 
     @Test fun unknownAppsFallBackToOriginalIcon() {
@@ -39,7 +42,8 @@ class IconMatcherTest {
         val roles = mapOf(IconRoles.DIALER to "com.android.contacts")
         assertEquals("phone", match("com.android.contacts", label = "Phone", count = 2, roles = roles))
         assertEquals("phone", match("com.android.contacts", label = "ODialer", count = 2, roles = roles))
-        assertNull(match("com.android.contacts", label = "Contacts", count = 2, roles = roles))
+        // ...while its "Contacts" entry gets the Contacts icon (batch 2), not the Phone icon.
+        assertEquals("contacts", match("com.android.contacts", label = "Contacts", count = 2, roles = roles))
     }
 
     @Test fun exactComponentWinsOverPackage() {

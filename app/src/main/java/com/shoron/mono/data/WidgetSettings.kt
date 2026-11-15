@@ -35,8 +35,16 @@ data class LockSettings(
     val textX: Float = DEFAULT_X,
     val textY: Float = DEFAULT_Y,
     val dim: Float = 0.25f,
+    /** Double-tap the MONO lock screen to turn the display off (needs MONO's accessibility service). */
+    val doubleTapToSleep: Boolean = true,
+    /** Ignore touches (and sleep) while the proximity sensor is covered, e.g. in a pocket. */
+    val pocketProtection: Boolean = true,
+    /** Turn the display off after this many seconds without a touch on the lock screen. */
+    val idleTimeoutSeconds: Int = DEFAULT_IDLE_SECONDS,
 ) {
     companion object {
+        const val DEFAULT_IDLE_SECONDS = 10
+        val IDLE_RANGE = 5..60
         const val DEFAULT_X = 0.10f
         const val DEFAULT_Y = 0.22f
         val X_RANGE = 0.04f..0.45f

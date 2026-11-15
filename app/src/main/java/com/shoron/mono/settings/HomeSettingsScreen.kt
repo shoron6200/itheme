@@ -28,17 +28,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.shoron.mono.MonoApplication
 import com.shoron.mono.R
 import com.shoron.mono.core.theme.MonoColors
-import androidx.compose.foundation.clickable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.sp
-import com.shoron.mono.apps.AppEntry
-import com.shoron.mono.apps.AppRepository
 import com.shoron.mono.data.HomeLayout
-import com.shoron.mono.icons.IconRepository
-import kotlinx.coroutines.flow.combine
 import com.shoron.mono.data.IconSize
 import com.shoron.mono.data.LauncherPreferences
 import com.shoron.mono.data.SwipeDownAction
@@ -48,20 +38,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class HomeSettingsViewModel(
-    private val preferences: LauncherPreferences,
-    appRepository: AppRepository,
-    iconRepository: IconRepository,
-) : ViewModel() {
-
-    /** Installed apps without a MONO Thin Line icon (missing-icon detection). */
-    val missingIcons: StateFlow<List<AppEntry>> =
-        combine(appRepository.apps, iconRepository.themedIcons) { apps, themed ->
-            apps.orEmpty().filter { it.key !in themed }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-    val themedCount: StateFlow<Int> = iconRepository.themedIcons.map { it.size }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+class HomeSettingsViewModel(private val preferences: LauncherPreferences) : ViewModel() {
 
     val layout: StateFlow<HomeLayout?> = preferences.homeLayout
         .map<HomeLayout, HomeLayout?> { it }
@@ -79,11 +56,7 @@ class HomeSettingsViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MonoApplication
-                HomeSettingsViewModel(
-                    app.container.launcherPreferences,
-                    app.container.appRepository,
-                    app.container.iconRepository,
-                )
+                HomeSettingsViewModel(app.container.launcherPreferences)
             }
         }
     }
@@ -94,9 +67,6 @@ class HomeSettingsViewModel(
 fun HomeSettingsScreen(onBack: () -> Unit) {
     val viewModel: HomeSettingsViewModel = viewModel(factory = HomeSettingsViewModel.Factory)
     val state by viewModel.layout.collectAsStateWithLifecycle()
-    val missing by viewModel.missingIcons.collectAsStateWithLifecycle()
-    val themedCount by viewModel.themedCount.collectAsStateWithLifecycle()
-    var showMissing by rememberSaveable { mutableStateOf(false) }
     val layout = state ?: return
 
     Column(
@@ -133,31 +103,6 @@ fun HomeSettingsScreen(onBack: () -> Unit) {
             ).forEach { (size, label) ->
                 RadioRow(stringResource(label), layout.iconSize == size) {
                     viewModel.update { it.copy(iconSize = size) }
-                }
-            }
-
-            SettingsSectionTitle(stringResource(R.string.icons_title))
-            SwitchRow(stringResource(R.string.icons_thin_line), layout.thinLineIcons) { on ->
-                viewModel.update { it.copy(thinLineIcons = on) }
-            }
-            Text(
-                text = stringResource(R.string.icons_summary, themedCount, missing.size),
-                color = MonoColors.Muted,
-                fontSize = 13.sp,
-                modifier = Modifier
-                    .clickable { showMissing = !showMissing }
-                    .padding(vertical = 6.dp),
-            )
-            if (showMissing) {
-                missing.forEach { app ->
-                    Text(
-                        text = "${app.label}  ·  ${app.packageName}",
-                        color = MonoColors.Faint,
-                        fontSize = 12.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(vertical = 2.dp),
-                    )
                 }
             }
 

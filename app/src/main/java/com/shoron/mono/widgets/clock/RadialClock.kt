@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -128,53 +129,75 @@ private fun MinuteDial(
     val labels = remember(labelStyle) {
         (0 until 60 step 5).associateWith { measurer.measure(ClockFormatter.twoDigits(it), labelStyle) }
     }
+    // Seconds digits pre-measured once (00..59) so the per-second layer only blits text.
+    val secondDigits = remember(secondsStyle) {
+        if (showSeconds) List(60) { measurer.measure(ClockFormatter.twoDigits(it), secondsStyle) } else emptyList()
+    }
+    val minute = remember(time) { derivedStateOf { time.value.minute } }
 
-    Canvas(modifier) {
-        val now = time.value // draw-phase read: per-second updates only redraw
-        val minute = now.minute
-        val second = if (showSeconds) now.second else 0
-        val cx = size.width / 2
-        val cy = size.height / 2
-        val side = min(size.width, size.height)
-        val ring = side * RING
-        val tickOuter = side * 0.47f
-
-        for (mark in 0 until 60) {
-            val angle = DialGeometry.angleOf(mark, minute, second)
-            val fade = fadeNearAnchor(angle)
-            if (fade <= 0.02f) continue
-            val major = mark % 5 == 0
-            val inner = if (major) tickOuter - side * 0.06f else tickOuter - side * 0.03f
-            val (x1, y1) = DialGeometry.point(cx, cy, inner, angle)
-            val (x2, y2) = DialGeometry.point(cx, cy, tickOuter, angle)
-            drawLine(
-                color = MonoColors.Foreground.copy(alpha = (if (major) 0.9f else 0.35f) * fade),
-                start = Offset(x1, y1),
-                end = Offset(x2, y2),
-                strokeWidth = (if (major) 1.4f else 1f) * density,
-                cap = StrokeCap.Round,
-            )
-            if (major) {
-                val layout = labels.getValue(mark)
-                val (lx, ly) = DialGeometry.point(cx, cy, ring, angle)
-                drawText(
-                    textLayoutResult = layout,
-                    topLeft = Offset(lx - layout.size.width / 2f, ly - layout.size.height / 2f),
-                    alpha = fade,
+    Box(modifier) {
+        // Ring: 60 ticks + 12 labels. Its own layer, redrawn only when the minute changes
+        // (previously it re-rendered every second to creep 0.1°).
+        Canvas(
+            Modifier
+                .fillMaxSize()
+                .graphicsLayer(),
+        ) {
+            val current = minute.value
+            val cx = size.width / 2
+            val cy = size.height / 2
+            val side = min(size.width, size.height)
+            val ring = side * RING
+            val tickOuter = side * 0.47f
+            for (mark in 0 until 60) {
+                val angle = DialGeometry.angleOf(mark, current)
+                val fade = fadeNearAnchor(angle)
+                if (fade <= 0.02f) continue
+                val major = mark % 5 == 0
+                val inner = if (major) tickOuter - side * 0.06f else tickOuter - side * 0.03f
+                val (x1, y1) = DialGeometry.point(cx, cy, inner, angle)
+                val (x2, y2) = DialGeometry.point(cx, cy, tickOuter, angle)
+                drawLine(
+                    color = MonoColors.Foreground.copy(alpha = (if (major) 0.9f else 0.35f) * fade),
+                    start = Offset(x1, y1),
+                    end = Offset(x2, y2),
+                    strokeWidth = (if (major) 1.4f else 1f) * density,
+                    cap = StrokeCap.Round,
                 )
+                if (major) {
+                    val layout = labels.getValue(mark)
+                    val (lx, ly) = DialGeometry.point(cx, cy, ring, angle)
+                    drawText(
+                        textLayoutResult = layout,
+                        topLeft = Offset(lx - layout.size.width / 2f, ly - layout.size.height / 2f),
+                        alpha = fade,
+                    )
+                }
             }
         }
 
         if (showSeconds) {
-            // Seconds dot orbiting from the capsule, plus small seconds digits inside the ring.
-            val secAngle = DialGeometry.ANCHOR_DEGREES + now.second * 6f
-            val (sx, sy) = DialGeometry.point(cx, cy, tickOuter + side * 0.025f, secAngle)
-            drawCircle(MonoColors.Foreground, radius = 2.2f * density, center = Offset(sx, sy))
-            val digits = measurer.measure(ClockFormatter.twoDigits(now.second), secondsStyle)
-            drawText(
-                textLayoutResult = digits,
-                topLeft = Offset(cx - digits.size.width / 2f, cy - digits.size.height / 2f),
-            )
+            // Seconds: a dot orbiting from the capsule plus small digits — a tiny separate layer,
+            // the only thing redrawn each second (read in the draw phase, no recomposition).
+            Canvas(
+                Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(),
+            ) {
+                val second = time.value.second
+                val cx = size.width / 2
+                val cy = size.height / 2
+                val side = min(size.width, size.height)
+                val tickOuter = side * 0.47f
+                val secAngle = DialGeometry.ANCHOR_DEGREES + second * 6f
+                val (sx, sy) = DialGeometry.point(cx, cy, tickOuter + side * 0.025f, secAngle)
+                drawCircle(MonoColors.Foreground, radius = 2.2f * density, center = Offset(sx, sy))
+                val digits = secondDigits[second.coerceIn(0, 59)]
+                drawText(
+                    textLayoutResult = digits,
+                    topLeft = Offset(cx - digits.size.width / 2f, cy - digits.size.height / 2f),
+                )
+            }
         }
     }
 }

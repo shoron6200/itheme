@@ -3,6 +3,7 @@ package com.shoron.mono
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.Context
+import com.shoron.mono.power.Diagnostics
 
 class MonoApplication : Application() {
 
@@ -11,6 +12,7 @@ class MonoApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        Diagnostics.onProcessStart(this)
         container = AppContainer(this)
     }
 

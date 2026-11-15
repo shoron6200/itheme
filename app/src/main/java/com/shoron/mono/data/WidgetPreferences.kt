@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +37,9 @@ class WidgetPreferences(context: Context) {
             textX = p[LOCK_X] ?: d.textX,
             textY = p[LOCK_Y] ?: d.textY,
             dim = p[LOCK_DIM] ?: d.dim,
+            doubleTapToSleep = p[LOCK_DOUBLE_TAP] ?: d.doubleTapToSleep,
+            pocketProtection = p[LOCK_POCKET] ?: d.pocketProtection,
+            idleTimeoutSeconds = p[LOCK_IDLE] ?: d.idleTimeoutSeconds,
         )
     }.distinctUntilChanged()
 
@@ -62,12 +66,18 @@ class WidgetPreferences(context: Context) {
                     textX = p[LOCK_X] ?: d.textX,
                     textY = p[LOCK_Y] ?: d.textY,
                     dim = p[LOCK_DIM] ?: d.dim,
+                    doubleTapToSleep = p[LOCK_DOUBLE_TAP] ?: d.doubleTapToSleep,
+                    pocketProtection = p[LOCK_POCKET] ?: d.pocketProtection,
+                    idleTimeoutSeconds = p[LOCK_IDLE] ?: d.idleTimeoutSeconds,
                 ),
             )
             p[LOCK_ENABLED] = next.enabled
             p[LOCK_X] = next.textX.coerceIn(LockSettings.X_RANGE)
             p[LOCK_Y] = next.textY.coerceIn(LockSettings.Y_RANGE)
             p[LOCK_DIM] = next.dim.coerceIn(0f, 0.8f)
+            p[LOCK_DOUBLE_TAP] = next.doubleTapToSleep
+            p[LOCK_POCKET] = next.pocketProtection
+            p[LOCK_IDLE] = next.idleTimeoutSeconds.coerceIn(LockSettings.IDLE_RANGE)
         }
     }
 
@@ -123,5 +133,8 @@ class WidgetPreferences(context: Context) {
         val LOCK_X = floatPreferencesKey("lock_x")
         val LOCK_Y = floatPreferencesKey("lock_y")
         val LOCK_DIM = floatPreferencesKey("lock_dim")
+        val LOCK_DOUBLE_TAP = booleanPreferencesKey("lock_double_tap_sleep")
+        val LOCK_POCKET = booleanPreferencesKey("lock_pocket_protection")
+        val LOCK_IDLE = intPreferencesKey("lock_idle_timeout_s")
     }
 }
