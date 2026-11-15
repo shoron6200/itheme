@@ -36,8 +36,14 @@ Rail (tap = animateScrollToItem, drag = scrollToItem, bend animation, straight w
   Closest supported option: `ActivityOptions.setLaunchBounds` (freeform) offered only when
   `FEATURE_FREEFORM_WINDOW_MANAGEMENT` is present; toast says "asked Android" (no false claim).
 
-### Build results
-- _Pending GitHub Actions run._
+### Build results (from GitHub Actions)
+- Run #18 (`d4f497c`, run id 43695761804) — all build steps **succeeded** on first attempt:
+  icon `--check` (39 icons), unit tests (incl. new `SetupModelTest`, `FloatingBoundsTest`),
+  debug APK `mono-debug-18`, final APK `MONO-final-18` (R8). Final APK still uses the temporary
+  CI key (MONO_* secrets not set).
+- `tools/icons/plan_batch.py` checked locally on sample JSON/CSV exports (dedupes mapped and
+  repeated packages, handles quoted CSV).
+- **Not verified on a physical device.**
 
 ## 2026-11-15 — Stability, power and icon system
 
