@@ -17,9 +17,45 @@ class IconManifestTest {
         "meet", "translate",
     )
 
+    /** Exact package mappings from the 2026-11-15 missing-icon request (batches 3–8). */
+    private val requestSamples = mapOf(
+        "com.cloudflare.onedotonedotonedotone" to "cloudflare",
+        "com.anthropic.claude" to "claude",
+        "com.deepseek.chat" to "deepseek",
+        "ai.x.grok" to "grok",
+        "com.bKash.customerapp" to "bkash",
+        "com.konasl.nagad" to "nagad",
+        "com.binance.dev" to "binance",
+        "org.mozilla.firefox" to "firefox",
+        "com.brave.browser" to "brave",
+        "com.duckduckgo.mobile.android" to "duckduckgo",
+        "com.instagram.barcelona" to "threads",
+        "com.reddit.frontpage" to "reddit",
+        "com.waze" to "waze",
+        "org.videolan.vlc" to "vlc",
+        "net.mullvad.mullvadvpn" to "vpn",
+        "com.exteragram.messenger" to "telegram",
+        "com.mixplorer" to "files",
+        "com.socialnmobile.dictapps.notepad.color.note" to "notes",
+        "cn.wps.moffice_eng" to "office",
+        "com.oneplus.brickmode" to "zen",
+    )
+
     @Test fun initialLibraryIsComplete() {
         val names = IconManifest.icons.map { it.name }
         required.forEach { assertTrue("missing icon: $it", it in names) }
+    }
+
+    @Test fun requestedPackagesMapToTheirIcons() {
+        val owner = IconManifest.icons.flatMap { spec -> spec.packages.map { it to spec.name } }.toMap()
+        requestSamples.forEach { (pkg, icon) -> assertEquals(pkg, icon, owner[pkg]) }
+        // Unknown app from the request keeps its original icon instead of a guessed one.
+        assertEquals(null, owner["com.sndemo.app"])
+    }
+
+    @Test fun everyIconHasABatch() {
+        IconManifest.icons.forEach { assertTrue("${it.name} has no batch", it.batch in 1..8) }
+        assertEquals(146, IconManifest.icons.size)
     }
 
     @Test fun namesAndPackagesAreUnique() {

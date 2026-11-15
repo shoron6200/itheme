@@ -15,6 +15,8 @@ data class IconSpec(
     val components: Set<String>,
     val role: String?,
     val labels: List<String>,
+    /** Production batch the icon was drawn in (design/icons/BATCHES.md); 0 = unknown. */
+    val batch: Int = 0,
 )
 
 /** System roles an icon can follow, so OEM apps (e.g. Realme/ColorOS) get the right icon. */

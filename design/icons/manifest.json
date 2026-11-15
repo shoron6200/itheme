@@ -1,22 +1,27 @@
 {
   "version": 1,
   "canvas": 48,
-  "notes": "Central MONO Thin Line icon manifest. Each icon: an SVG in svg/<name>.svg plus how it maps to apps. 'packages' match every launchable activity of the package (when 'labels' is set and the package has several launcher activities, only activities whose label contains one of the words). 'components' match exact package/activity. 'role' also matches whatever app currently fills that system role on the device (dialer, sms, camera, settings, clock, calendar). Run python3 tools/icons/build_icons.py after editing.",
+  "notes": "Central MONO Thin Line icon manifest. Each icon: an SVG in svg/<name>.svg plus how it maps to apps. 'packages' match every launchable activity of the package (when 'labels' is set and the package has several launcher activities, only activities whose label contains one of the words). 'components' match exact package/activity. 'role' also matches whatever app currently fills that system role on the device (dialer, sms, camera, settings, clock, calendar). Run python3 tools/icons/build_icons.py after editing. 'batch' records the production batch the icon was drawn in (shown as progress in Settings → Icons).",
   "icons": [
     {
       "name": "whatsapp",
       "packages": [
         "com.whatsapp",
         "com.whatsapp.w4b"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "telegram",
       "packages": [
         "org.telegram.messenger",
         "org.telegram.messenger.web",
-        "org.thunderdog.challegram"
-      ]
+        "org.thunderdog.challegram",
+        "com.exteragram.messenger",
+        "org.forkclient.messenger.beta",
+        "ir.ilmili.telegraph"
+      ],
+      "batch": 1
     },
     {
       "name": "chrome",
@@ -25,49 +30,57 @@
         "com.chrome.beta",
         "com.chrome.dev",
         "com.chrome.canary"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "youtube",
       "packages": [
         "com.google.android.youtube",
-        "app.revanced.android.youtube"
-      ]
+        "app.revanced.android.youtube",
+        "app.dwrv.android.youtube"
+      ],
+      "batch": 1
     },
     {
       "name": "spotify",
       "packages": [
         "com.spotify.music",
         "com.spotify.lite"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "instagram",
       "packages": [
         "com.instagram.android",
         "com.instagram.lite"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "facebook",
       "packages": [
         "com.facebook.katana",
         "com.facebook.lite"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "messenger",
       "packages": [
         "com.facebook.orca",
         "com.facebook.mlite"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "gmail",
       "packages": [
         "com.google.android.gm",
         "com.google.android.gm.lite"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "maps",
@@ -77,20 +90,19 @@
       ],
       "labels": [
         "maps"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "photos",
       "packages": [
-        "com.google.android.apps.photos"
-      ]
+        "com.google.android.apps.photos",
+        "app.revanced.android.photos"
+      ],
+      "batch": 1
     },
     {
       "name": "camera",
-      "role": "camera",
-      "labels": [
-        "camera"
-      ],
       "packages": [
         "com.oplus.camera",
         "com.coloros.camera",
@@ -98,52 +110,63 @@
         "com.android.camera2",
         "com.google.android.GoogleCamera",
         "com.sec.android.app.camera",
-        "org.codeaurora.snapcam"
-      ]
+        "org.codeaurora.snapcam",
+        "com.camera.lmc84"
+      ],
+      "labels": [
+        "camera"
+      ],
+      "role": "camera",
+      "batch": 1
     },
     {
       "name": "phone",
-      "role": "dialer",
+      "packages": [
+        "com.google.android.dialer",
+        "com.android.dialer",
+        "com.samsung.android.dialer"
+      ],
       "labels": [
         "phone",
         "dialer",
         "call"
       ],
-      "packages": [
-        "com.google.android.dialer",
-        "com.android.dialer",
-        "com.samsung.android.dialer"
-      ]
+      "role": "dialer",
+      "batch": 1
     },
     {
       "name": "messages",
-      "role": "sms",
-      "labels": [
-        "message",
-        "sms"
-      ],
       "packages": [
         "com.google.android.apps.messaging",
         "com.android.mms",
         "com.android.messaging",
         "com.samsung.android.messaging"
-      ]
+      ],
+      "labels": [
+        "message",
+        "sms"
+      ],
+      "role": "sms",
+      "batch": 1
     },
     {
       "name": "settings",
-      "role": "settings",
+      "packages": [
+        "com.android.settings",
+        "app.revanced.android.gms"
+      ],
       "labels": [
         "settings"
       ],
-      "packages": [
-        "com.android.settings"
-      ]
+      "role": "settings",
+      "batch": 1
     },
     {
       "name": "playstore",
       "packages": [
         "com.android.vending"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "drive",
@@ -152,82 +175,87 @@
       ],
       "labels": [
         "drive"
-      ]
+      ],
+      "batch": 1
     },
     {
       "name": "files",
-      "labels": [
-        "file"
-      ],
       "packages": [
         "com.google.android.apps.nbu.files",
         "com.android.documentsui",
         "com.coloros.filemanager",
         "com.oplus.filemanager",
         "com.sec.android.app.myfiles",
-        "com.mi.android.globalFileexplorer"
-      ]
+        "com.mi.android.globalFileexplorer",
+        "com.mixplorer"
+      ],
+      "labels": [
+        "file"
+      ],
+      "batch": 1
     },
     {
       "name": "calendar",
-      "role": "calendar",
-      "labels": [
-        "calendar"
-      ],
       "packages": [
         "com.google.android.calendar",
         "com.coloros.calendar",
         "com.android.calendar",
         "com.samsung.android.calendar"
-      ]
+      ],
+      "labels": [
+        "calendar"
+      ],
+      "role": "calendar",
+      "batch": 1
     },
     {
       "name": "clock",
-      "role": "clock",
-      "labels": [
-        "clock",
-        "alarm"
-      ],
       "packages": [
         "com.google.android.deskclock",
         "com.android.deskclock",
         "com.coloros.alarmclock",
         "com.oplus.alarmclock",
-        "com.sec.android.app.clockpackage"
-      ]
+        "com.sec.android.app.clockpackage",
+        "com.meiyinet.clock"
+      ],
+      "labels": [
+        "clock",
+        "alarm"
+      ],
+      "role": "clock",
+      "batch": 1
     },
     {
       "name": "contacts",
-      "labels": [
-        "contact"
-      ],
       "packages": [
         "com.google.android.contacts",
         "com.android.contacts",
         "com.samsung.android.app.contacts"
-      ]
+      ],
+      "labels": [
+        "contact"
+      ],
+      "batch": 2
     },
     {
       "name": "calculator",
-      "labels": [
-        "calculator"
-      ],
       "packages": [
         "com.google.android.calculator",
         "com.coloros.calculator",
         "com.oplus.calculator",
         "com.android.calculator2",
         "com.sec.android.app.popupcalculator",
-        "com.miui.calculator"
-      ]
+        "com.miui.calculator",
+        "advanced.scientific.calculator.calc991.plus",
+        "com.rstechnologiesltd.dpscalculator"
+      ],
+      "labels": [
+        "calculator"
+      ],
+      "batch": 2
     },
     {
       "name": "gallery",
-      "labels": [
-        "gallery",
-        "photo",
-        "album"
-      ],
       "packages": [
         "com.coloros.gallery3d",
         "com.oplus.gallery",
@@ -235,84 +263,104 @@
         "com.sec.android.gallery3d",
         "com.miui.gallery",
         "com.google.android.apps.photosgo"
-      ]
+      ],
+      "labels": [
+        "gallery",
+        "photo",
+        "album"
+      ],
+      "batch": 2
     },
     {
       "name": "music",
-      "labels": [
-        "music"
-      ],
       "packages": [
         "com.heytap.music",
         "com.oppo.music",
         "com.android.music",
         "com.sec.android.app.music",
         "com.miui.player"
-      ]
+      ],
+      "labels": [
+        "music"
+      ],
+      "batch": 2
     },
     {
       "name": "notes",
-      "labels": [
-        "note"
-      ],
       "packages": [
         "com.coloros.note",
         "com.oplus.note",
         "com.samsung.android.app.notes",
-        "com.miui.notes"
-      ]
+        "com.miui.notes",
+        "com.note.todolist.noteapp",
+        "com.socialnmobile.dictapps.notepad.color.note",
+        "note.notesapp.notebook.notepad.stickynotes.colornote",
+        "com.onyx.galaxy.global.note",
+        "tidynotes.notepad.notes.notebook.note.checklist.todolist",
+        "app.pocketleaf.notes"
+      ],
+      "labels": [
+        "note"
+      ],
+      "batch": 2
     },
     {
       "name": "weather",
-      "labels": [
-        "weather"
-      ],
       "packages": [
         "com.coloros.weather2",
         "com.oplus.weather2",
         "com.sec.android.daemonapp",
         "com.miui.weather2"
-      ]
+      ],
+      "labels": [
+        "weather"
+      ],
+      "batch": 2
     },
     {
       "name": "recorder",
-      "labels": [
-        "record"
-      ],
       "packages": [
         "com.coloros.soundrecorder",
         "com.oplus.soundrecorder",
         "com.google.android.apps.recorder",
         "com.android.soundrecorder",
         "com.sec.android.app.voicenote"
-      ]
+      ],
+      "labels": [
+        "record"
+      ],
+      "batch": 2
     },
     {
       "name": "google",
+      "packages": [
+        "com.google.android.googlequicksearchbox"
+      ],
       "labels": [
         "google"
       ],
-      "packages": [
-        "com.google.android.googlequicksearchbox"
-      ]
+      "batch": 2
     },
     {
       "name": "gemini",
       "packages": [
         "com.google.android.apps.bard"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "chatgpt",
       "packages": [
         "com.openai.chatgpt"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "x",
       "packages": [
         "com.twitter.android"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "tiktok",
@@ -320,50 +368,880 @@
         "com.zhiliaoapp.musically",
         "com.ss.android.ugc.trill",
         "com.zhiliaoapp.musically.go"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "snapchat",
       "packages": [
         "com.snapchat.android"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "linkedin",
       "packages": [
         "com.linkedin.android"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "netflix",
       "packages": [
         "com.netflix.mediaclient"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "discord",
       "packages": [
         "com.discord"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "keep",
       "packages": [
         "com.google.android.keep"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "meet",
       "packages": [
         "com.google.android.apps.tachyon",
         "com.google.android.apps.meetings"
-      ]
+      ],
+      "batch": 2
     },
     {
       "name": "translate",
       "packages": [
         "com.google.android.apps.translate"
-      ]
+      ],
+      "batch": 2
+    },
+    {
+      "name": "cloudflare",
+      "packages": [
+        "com.cloudflare.onedotonedotonedotone"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "download",
+      "packages": [
+        "idm.internet.download.manager",
+        "com.aistudio.videodownloader.zkpxty"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "icon_pack",
+      "packages": [
+        "com.hexoline.flatpixelblack",
+        "com.alphaone.beeline.iconpack",
+        "com.jndapp.limeline.linex.iconpack",
+        "com.natewren.linesfree",
+        "io.hexman.xiconchanger"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "scanner",
+      "packages": [
+        "com.adobe.scan.android"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "language",
+      "packages": [
+        "com.unacademy.antonio",
+        "app.getfluently.app",
+        "com.picoai.languageapp.android"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "voip",
+      "packages": [
+        "com.alaap.app",
+        "net.whatscall.freecall",
+        "com.portgo",
+        "com.rafusoft.sip",
+        "com.zoiper.android.app",
+        "com.vijkar_telecom.mutsuddy"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "rewards",
+      "packages": [
+        "com.axiomc.bocantamivi",
+        "com.google.android.apps.paidtasks"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "authenticator",
+      "packages": [
+        "com.google.android.apps.authenticator2"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "vpn",
+      "packages": [
+        "com.banglatech.bangladeshvpn",
+        "com.banglamodeapk.banglavpn",
+        "com.expressvpn.vpn",
+        "net.mullvad.mullvadvpn",
+        "org.outline.android.client",
+        "com.pandavpn.androidproxy",
+        "com.Lemulite_Studio.SOCKSIPFREEVPNIP",
+        "net.typeblog.socks",
+        "com.fast.free.unblock.thunder.vpn",
+        "com.elseplus.tun2socks",
+        "com.free.vpn.india.proxy.planet"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "bank",
+      "packages": [
+        "cy.com.netinfo.netteller.boc",
+        "com.thecitybank.citytouch"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "earbuds",
+      "packages": [
+        "com.baseus.intelligent",
+        "com.qcymall.googleearphonesetup"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "tag",
+      "packages": [
+        "com.larixon.bazaraki"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "motorbike",
+      "packages": [
+        "com.topfreegames.bikeracefreeworld",
+        "com.skgames.trafficrider",
+        "com.pathao.user"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "binance",
+      "packages": [
+        "com.binance.dev"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "bkash",
+      "packages": [
+        "com.bKash.customerapp"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "bolt",
+      "packages": [
+        "ee.mtakso.client",
+        "com.bolthelper.nicosia"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "courier",
+      "packages": [
+        "com.bolt.deliverycourier",
+        "com.wolt.courierapp"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "food",
+      "packages": [
+        "com.bolt.deliveryclient",
+        "com.wolt.android"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "brave",
+      "packages": [
+        "com.brave.browser"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "chess",
+      "packages": [
+        "com.chess",
+        "com.dkxqzbfkjt.pocketchess"
+      ],
+      "batch": 3
+    },
+    {
+      "name": "claude",
+      "packages": [
+        "com.anthropic.claude"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "clone_phone",
+      "packages": [
+        "com.coloros.backuprestore"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "cloud",
+      "packages": [
+        "app.cloudmount",
+        "com.heytap.cloud",
+        "com.sndrive.com"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "streaming",
+      "packages": [
+        "com.lagradost.cloudstream3",
+        "com.stremio.one",
+        "com.viewlift.hoichoi",
+        "com.wemesh.android"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "code",
+      "packages": [
+        "com.tyron.code",
+        "host.exp.exponent",
+        "ru.iiec.jvdroid",
+        "ru.iiec.pydroid3",
+        "com.rhmsoft.edit",
+        "com.teejay.trebedit"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "compass",
+      "packages": [
+        "com.coloros.compass2",
+        "qibladirectioncompass.qiblafinder.truenorthcompass"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "text_scan",
+      "packages": [
+        "com.jg.copypasteanytextonphoto"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "bus",
+      "packages": [
+        "com.gmv.cyprusbus2",
+        "app.meep.cyprus.pame"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "shopping",
+      "packages": [
+        "com.daraz.android",
+        "com.einnovation.temu"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "deepseek",
+      "packages": [
+        "com.deepseek.chat"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "graph",
+      "packages": [
+        "com.desmos.calculator"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "vault",
+      "packages": [
+        "com.os.docvault"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "pdf",
+      "packages": [
+        "com.tekxperiastudios.pdfexporter"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "topup",
+      "packages": [
+        "com.traveltelbd.user"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "ai_chip",
+      "packages": [
+        "com.google.ai.edge.gallery",
+        "io.github.xororz.localdream"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "gps",
+      "packages": [
+        "com.hopefactory2021.fakegpslocation"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "firefox",
+      "packages": [
+        "org.mozilla.firefox"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "flashlight",
+      "packages": [
+        "com.peacock.flashlight"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "fonts",
+      "packages": [
+        "cool.fonts.symbol.keyboard.custom.fancy.text.editor"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "foodpanda",
+      "packages": [
+        "com.global.foodpanda.android"
+      ],
+      "batch": 4
+    },
+    {
+      "name": "gamepad",
+      "packages": [
+        "com.oplus.games"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "watch",
+      "packages": [
+        "com.yc.gloryfit",
+        "com.mappdev.kw66"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "google_one",
+      "packages": [
+        "com.google.android.apps.subscriptions.red"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "pay",
+      "packages": [
+        "com.google.android.apps.nbu.paisa.user",
+        "com.jccsmart",
+        "com.dbbl.nexus.pay",
+        "com.redotpay",
+        "bd.com.upay.customer"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "grok",
+      "packages": [
+        "ai.x.grok"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "checklist",
+      "packages": [
+        "com.rohansaxena.habit_tracker_app",
+        "com.studytracker.app",
+        "com.listkoro.app"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "google_home",
+      "packages": [
+        "com.google.android.apps.chromecast.app"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "image_search",
+      "packages": [
+        "com.thinkfree.searchbyimage"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "mail",
+      "packages": [
+        "com.temporary.email.pro"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "kde_connect",
+      "packages": [
+        "org.kde.kdeconnect_tp"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "browser",
+      "packages": [
+        "com.kiwibrowser.browser",
+        "net.quetta.browser",
+        "mark.via.gp",
+        "com.xbrowser.play"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "widget",
+      "packages": [
+        "org.kustom.widget"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "lens",
+      "packages": [
+        "com.google.ar.lens"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "localsend",
+      "packages": [
+        "org.localsend.localsend_app"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "heart",
+      "packages": [
+        "com.lovoracards.couplequestion"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "launcher",
+      "packages": [
+        "com.qqlabs.minimalistlauncher",
+        "com.com.classic.launcheren"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "moonpay",
+      "packages": [
+        "com.moonpay"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "patch",
+      "packages": [
+        "app.morphe.manager"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "meta",
+      "packages": [
+        "com.facebook.aura"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "video_player",
+      "packages": [
+        "com.mxtech.videoplayer.pro",
+        "com.genuine.leone",
+        "com.coloros.video"
+      ],
+      "batch": 5
+    },
+    {
+      "name": "sim",
+      "packages": [
+        "teletalk.teletalkcustomerapp",
+        "com.arena.banglalinkmela.app",
+        "net.omobio.airtelsc",
+        "com.portonics.mygp",
+        "primetel.androidapp.com.primetel",
+        "com.android.stk",
+        "com.redteamobile.roaming"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "money",
+      "packages": [
+        "com.raha.app.mymoney.free"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "fuel",
+      "packages": [
+        "com.petrolina.loyaltyapp"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "nagad",
+      "packages": [
+        "com.konasl.nagad"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "news",
+      "packages": [
+        "com.google.android.apps.magazines",
+        "org.chromium.webapk.a522ce88e3872f219_v2"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "nordvpn",
+      "packages": [
+        "com.nordvpn.android"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "printer",
+      "packages": [
+        "com.nokoprint"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "notebook",
+      "packages": [
+        "com.google.android.apps.labs.language.tailwind"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "notion",
+      "packages": [
+        "notion.id"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "outlook",
+      "packages": [
+        "com.microsoft.office.outlook"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "circuit",
+      "packages": [
+        "com.proto.circuitsimulator"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "paypal",
+      "packages": [
+        "com.paypal.android.p2pmobile"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "phone_manager",
+      "packages": [
+        "com.coloros.phonemanager"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "book",
+      "packages": [
+        "com.hdictionary.bn",
+        "com.google.android.apps.books",
+        "com.humayunahmed.shomagro"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "flashcards",
+      "packages": [
+        "com.quizlet.quizletandroid"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "quora",
+      "packages": [
+        "com.quora.android"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "link",
+      "packages": [
+        "com.realme.link"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "reddit",
+      "packages": [
+        "com.reddit.frontpage"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "revolut",
+      "packages": [
+        "com.revolut.revolut"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "keyboard",
+      "packages": [
+        "ridmik.keyboard"
+      ],
+      "batch": 6
+    },
+    {
+      "name": "rocket",
+      "packages": [
+        "com.dbbl.mbs.apps.main"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "remote_desktop",
+      "packages": [
+        "com.carriez.flutter_hbb",
+        "com.realvnc.viewer.android",
+        "com.microsoft.rdc.androidx"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "secure_chat",
+      "packages": [
+        "com.safeum.android"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "lock",
+      "packages": [
+        "com.coloros.onekeylockscreen"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "shazam",
+      "packages": [
+        "com.shazam.android"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "shortcut",
+      "packages": [
+        "rk.android.app.shortcutmaker"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "sketch",
+      "packages": [
+        "com.adsk.sketchbook"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "send_money",
+      "packages": [
+        "com.taptapsend"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "tasks",
+      "packages": [
+        "com.google.android.apps.tasks"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "tv",
+      "packages": [
+        "com.ottplay.ottplay"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "repeat",
+      "packages": [
+        "com.centroidapps.textrepeater"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "themes",
+      "packages": [
+        "com.oplus.themestore"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "threads",
+      "packages": [
+        "com.instagram.barcelona"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "ton",
+      "packages": [
+        "com.ton_keeper"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "trading",
+      "packages": [
+        "com.avuscapital.trading212",
+        "com.tradingview.tradingviewapp"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "truecaller",
+      "packages": [
+        "com.truecaller"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "car",
+      "packages": [
+        "com.ubercab"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "wallet",
+      "packages": [
+        "com.google.android.apps.walletnfcrel"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "waze",
+      "packages": [
+        "com.waze"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "vlc",
+      "packages": [
+        "org.videolan.vlc"
+      ],
+      "batch": 7
+    },
+    {
+      "name": "office",
+      "packages": [
+        "cn.wps.moffice_eng"
+      ],
+      "batch": 8
+    },
+    {
+      "name": "zen",
+      "packages": [
+        "com.oneplus.brickmode"
+      ],
+      "batch": 8
+    },
+    {
+      "name": "network",
+      "packages": [
+        "com.zerotier.one",
+        "com.reqable.android"
+      ],
+      "batch": 8
+    },
+    {
+      "name": "airplane",
+      "packages": [
+        "com.m.qr"
+      ],
+      "batch": 8
+    },
+    {
+      "name": "wallpaper",
+      "packages": [
+        "com.wallpaper.liveloop"
+      ],
+      "batch": 8
+    },
+    {
+      "name": "ai_chat",
+      "packages": [
+        "com.poe.android",
+        "us.valkon.privateai",
+        "com.orailnoor.privateagent"
+      ],
+      "batch": 8
+    },
+    {
+      "name": "duckduckgo",
+      "packages": [
+        "com.duckduckgo.mobile.android"
+      ],
+      "batch": 8
     }
   ]
 }

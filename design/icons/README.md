@@ -31,6 +31,8 @@ Everything under `app/src/main/res/drawable/ic_mono_*.xml` and
    invalid, missing or stale.
 
 ## Batches from your missing-app list
+
+Produced batches and their exact package mappings: [BATCHES.md](BATCHES.md).
 1. On the phone: MONO settings → Icons → (filter/select) → export TXT, CSV or JSON.
 2. `python3 tools/icons/plan_batch.py mono-missing-icons.json --size 20` — removes packages that
    are already mapped and merges duplicate packages; `--write` saves

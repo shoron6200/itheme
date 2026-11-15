@@ -17,6 +17,7 @@ Validation rules (the MONO Thin Line style):
   * Outlines: stroke #FFFFFF, stroke-width 1.5-2.5, round caps and joins, no fill.
   * Solid accents allowed only as small dots: fill #FFFFFF, no stroke, radius <= 2.
   * All geometry inside the 2..46 safe area. Absolute path commands only.
+  * Manifest: optional "batch" (production batch number, shown as progress in Settings → Icons).
   * Manifest: unique icon names and package names, valid package/component syntax, known roles,
     every icon has an SVG and every SVG is listed.
 """
@@ -255,6 +256,9 @@ def load_manifest() -> list[dict]:
             err(f"manifest: '{name}' has unknown role '{role}' (known: {', '.join(sorted(ROLES))})")
         if not icon.get("packages") and not icon.get("components") and not role:
             err(f"manifest: '{name}' maps to nothing")
+        batch = icon.get("batch", 0)
+        if not isinstance(batch, int) or batch < 0:
+            err(f"manifest: '{name}' has invalid batch '{batch}' (use a positive integer)")
     for svg in SVG_DIR.glob("*.svg"):
         if svg.stem not in names:
             err(f"svg/{svg.name} is not listed in manifest.json")
@@ -279,6 +283,7 @@ def kotlin(icons: list[dict]) -> str:
             f'            components = {strings(icon.get("components", []))},\n'
             f"            role = {role},\n"
             f'            labels = {string_list(icon.get("labels", []))},\n'
+            f'            batch = {icon.get("batch", 0)},\n'
             "        ),"
         )
     return (

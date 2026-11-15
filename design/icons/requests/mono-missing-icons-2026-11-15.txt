@@ -1,0 +1,198 @@
+1.1.1.1	com.cloudflare.onedotonedotonedotone
+1DM	idm.internet.download.manager
+Adaptive Black	com.hexoline.flatpixelblack
+Adobe Scan	com.adobe.scan.android
+Airlearn	com.unacademy.antonio
+Alaap	com.alaap.app
+Antamivi	com.axiomc.bocantamivi
+App Note	com.note.todolist.noteapp
+Authenticator	com.google.android.apps.authenticator2
+Bangla Dictionary	com.hdictionary.bn
+Bangladesh Vpn	com.banglatech.bangladeshvpn
+Bangladeshi VPN	com.banglamodeapk.banglavpn
+Bank Of Cyprus	cy.com.netinfo.netteller.boc
+Baseus	com.baseus.intelligent
+Bazaraki	com.larixon.bazaraki
+BeeLine	com.alphaone.beeline.iconpack
+Big digital clock display	com.meiyinet.clock
+Bike Race	com.topfreegames.bikeracefreeworld
+Binance	com.binance.dev
+bKash	com.bKash.customerapp
+Bolt	ee.mtakso.client
+Bolt Courier	com.bolt.deliverycourier
+Bolt Food	com.bolt.deliveryclient
+Bolt Nicosia Helper	com.bolthelper.nicosia
+Brave	com.brave.browser
+CalcES	advanced.scientific.calculator.calc991.plus
+Chess	com.chess
+Citytouch	com.thecitybank.citytouch
+Claude	com.anthropic.claude
+Clone Phone	com.coloros.backuprestore
+CloudMount	app.cloudmount
+CloudStream	com.lagradost.cloudstream3
+CodeAssist	com.tyron.code
+ColorNote	com.socialnmobile.dictapps.notepad.color.note
+Compass	com.coloros.compass2
+Copy Paste Any Text On Screen	com.jg.copypasteanytextonphoto
+Cyprus Bus	com.gmv.cyprusbus2
+Daraz	com.daraz.android
+DeepSeek	com.deepseek.chat
+Desmos	com.desmos.calculator
+DocVault	com.os.docvault
+DPS Calculator	com.rstechnologiesltd.dpscalculator
+DuckDuckGo	com.duckduckgo.mobile.android
+E2PDF (Backup & Restore)	com.tekxperiastudios.pdfexporter
+Easyplan Topup	com.traveltelbd.user
+Edge Gallery	com.google.ai.edge.gallery
+Expo Go	host.exp.exponent
+ExpressVPN	com.expressvpn.vpn
+exteraGram	com.exteragram.messenger
+Fake GPS Location	com.hopefactory2021.fakegpslocation
+Fast Call	net.whatscall.freecall
+Firefox	org.mozilla.firefox
+Flashlight	com.peacock.flashlight
+Fluently	app.getfluently.app
+Fonts Art	cool.fonts.symbol.keyboard.custom.fancy.text.editor
+foodpanda	com.global.foodpanda.android
+Fork Client	org.forkclient.messenger.beta
+Game Assistant	com.oplus.games
+GloryFit	com.yc.gloryfit
+Google One	com.google.android.apps.subscriptions.red
+GPay	com.google.android.apps.nbu.paisa.user
+Grok	ai.x.grok
+Habit Tracker - To-Do List	com.rohansaxena.habit_tracker_app
+HeyTap Cloud	com.heytap.cloud
+hoichoi	com.viewlift.hoichoi
+Home	com.google.android.apps.chromecast.app
+Image Search	com.thinkfree.searchbyimage
+Instant Mail	com.temporary.email.pro
+JCCsmart	com.jccsmart
+Jvdroid	ru.iiec.jvdroid
+KDE Connect	org.kde.kdeconnect_tp
+Kiwi Browser	com.kiwibrowser.browser
+KW66 Faces	com.mappdev.kw66
+KWGT	org.kustom.widget
+Lens	com.google.ar.lens
+Lines Free	com.natewren.linesfree
+ListKoro	com.listkoro.app
+LiveLoop	com.wallpaper.liveloop
+LMC8.4	com.camera.lmc84
+Local Dream	io.github.xororz.localdream
+LocalSend	org.localsend.localsend_app
+Lovora	com.lovoracards.couplequestion
+microG Settings	app.revanced.android.gms
+minimalist phone	com.qqlabs.minimalistlauncher
+MiX	com.mixplorer
+MoonPay	com.moonpay
+Morphe	app.morphe.manager
+Muse	com.facebook.aura
+MUTSUDDY	com.vijkar_telecom.mutsuddy
+MX Player Pro	com.mxtech.videoplayer.pro
+My Teletalk	teletalk.teletalkcustomerapp
+MyBL	com.arena.banglalinkmela.app
+MyCirkle-Airtel	net.omobio.airtelsc
+MyGP	com.portonics.mygp
+MyMoney	com.raha.app.mymoney.free
+myPetrolina	com.petrolina.loyaltyapp
+MyPrimetel	primetel.androidapp.com.primetel
+Nagad	com.konasl.nagad
+Network Stream (Video) Player	com.genuine.leone
+News	com.google.android.apps.magazines
+NexusPay	com.dbbl.nexus.pay
+Ninja Mole	net.mullvad.mullvadvpn
+Nokia 1280 Launcher	com.com.classic.launcheren
+NokoPrint	com.nokoprint
+NordVPN	com.nordvpn.android
+Notebook	com.google.android.apps.labs.language.tailwind
+Notes	note.notesapp.notebook.notepad.stickynotes.colornote
+Notion	notion.id
+ORoaming	com.redteamobile.roaming
+Outline	org.outline.android.client
+Outlook	com.microsoft.office.outlook
+P R O T O	com.proto.circuitsimulator
+Pame	app.meep.cyprus.pame
+PandaVPN	com.pandavpn.androidproxy
+Pathao	com.pathao.user
+PayPal	com.paypal.android.p2pmobile
+Phone Manager	com.coloros.phonemanager
+Photos	app.revanced.android.photos
+Pingo	com.picoai.languageapp.android
+Play Books	com.google.android.apps.books
+Pocket Chess	com.dkxqzbfkjt.pocketchess
+Pocketleaf	app.pocketleaf.notes
+Poe	com.poe.android
+PortSIP UC	com.portgo
+PrimeTel Menu	com.android.stk
+Private AI	us.valkon.privateai
+PrivateAgent	com.orailnoor.privateagent
+Pydroid 3	ru.iiec.pydroid3
+Qatar Airways	com.m.qr
+QCY	com.qcymall.googleearphonesetup
+Qibla Compass	qibladirectioncompass.qiblafinder.truenorthcompass
+Quetta	net.quetta.browser
+QuickEdit	com.rhmsoft.edit
+Quizlet	com.quizlet.quizletandroid
+Quora	com.quora.android
+Rafusoft Dialer	com.rafusoft.sip
+Rave	com.wemesh.android
+realme Link	com.realme.link
+Reddit	com.reddit.frontpage
+RedotPay	com.redotpay
+Reqable	com.reqable.android
+Revolut	com.revolut.revolut
+Rewards	com.google.android.apps.paidtasks
+Ridmik	ridmik.keyboard
+Rocket	com.dbbl.mbs.apps.main
+RustDesk	com.carriez.flutter_hbb
+RVNC Viewer	com.realvnc.viewer.android
+SafeUM	com.safeum.android
+Screen Lock	com.coloros.onekeylockscreen
+Shazam	com.shazam.android
+Shortcut Maker	rk.android.app.shortcutmaker
+Sketchbook	com.adsk.sketchbook
+SN Drive	com.sndrive.com
+sndemo	com.sndemo.app
+Socks Proxy	com.Lemulite_Studio.SOCKSIPFREEVPNIP
+SocksDroid	net.typeblog.socks
+StarNote	com.onyx.galaxy.global.note
+Stremio	com.stremio.one
+Study Tracker	com.studytracker.app
+Taptap Send	com.taptapsend
+Tasks	com.google.android.apps.tasks
+Telegraph	ir.ilmili.telegraph
+Televizo	com.ottplay.ottplay
+Temu	com.einnovation.temu
+Text Repeater	com.centroidapps.textrepeater
+The Daily Ittefaq	org.chromium.webapk.a522ce88e3872f219_v2
+Theme Store	com.oplus.themestore
+Threads	com.instagram.barcelona
+Thunder VPN	com.fast.free.unblock.thunder.vpn
+Tidy Notes	tidynotes.notepad.notes.notebook.note.checklist.todolist
+Tonkeeper	com.ton_keeper
+Trading 212	com.avuscapital.trading212
+TradingView	com.tradingview.tradingviewapp
+Traffic Rider	com.skgames.trafficrider
+TrebEdit	com.teejay.trebedit
+Truecaller	com.truecaller
+Tun2Socks	com.elseplus.tun2socks
+Uber	com.ubercab
+upay	bd.com.upay.customer
+Via	mark.via.gp
+Video Downloader	com.aistudio.videodownloader.zkpxty
+Videos	com.coloros.video
+VLC	org.videolan.vlc
+VPN India	com.free.vpn.india.proxy.planet
+Wallet	com.google.android.apps.walletnfcrel
+Waze	com.waze
+Windows App	com.microsoft.rdc.androidx
+Wolt	com.wolt.android
+Wolt Partner	com.wolt.courierapp
+WPS Office	cn.wps.moffice_eng
+X Icon Changer	io.hexman.xiconchanger
+XBrowser	com.xbrowser.play
+YellowLine	com.jndapp.limeline.linex.iconpack
+YT (drifty)	app.dwrv.android.youtube
+Zen Space	com.oneplus.brickmode
+ZeroTier One	com.zerotier.one
+ZoiPer	com.zoiper.android.app
+হুমায়ুন আহমেদ	com.humayunahmed.shomagro

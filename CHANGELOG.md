@@ -4,6 +4,20 @@ All notable user-facing changes. Format: [Keep a Changelog](https://keepachangel
 
 ## [Unreleased]
 
+### Added — Thin Line icons for your missing apps (batches 3–8)
+- 107 new MONO Thin Line icons (library now 146), drawn in the same 48 × 48, 2px white
+  outline style: 1.1.1.1, Claude, DeepSeek, Grok, Firefox, Brave, DuckDuckGo, Reddit, Quora,
+  Threads, Notion, Outlook, WPS Office, PayPal, Revolut, Binance, bKash, Nagad, Rocket,
+  Shazam, VLC, Waze, Uber, Truecaller, Tasks, Wallet, Google One, Home, Lens, KDE Connect,
+  LocalSend and more.
+- 197 of the 198 apps in your exported missing-icon list now get a Thin Line icon, each by its
+  exact package name. 17 reuse an existing icon (e.g. exteraGram → Telegram, MiX → Files,
+  ColorNote → Notes). "sndemo" could not be identified and keeps its original icon.
+- Apps without a distinctive public mark (VPNs, VoIP dialers, SIM/operator apps, code editors,
+  payment wallets) share a clear category symbol instead of an invented logo.
+- Settings → Icons: total apps, custom icons, missing count, coverage bar, and the icon
+  library by batch with how many icons of each batch are in use on your phone.
+
 ### Fixed — app drawer gestures
 - Scrolling up to the top of the app list no longer closes the drawer: pull-to-close only works
   when the finger went down with the list already at the top (and needs 120dp).

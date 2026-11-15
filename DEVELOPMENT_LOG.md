@@ -2,6 +2,32 @@
 
 Engineering notes, decisions and **verified** build results. Newest first.
 
+## 2026-11-15 — Missing Thin Line icon production (batches 3–8)
+
+Source of truth: owner's export `design/icons/requests/mono-missing-icons-2026-11-15.txt`
+(198 rows, label TAB package).
+
+- Audit (script): 198 valid, unique packages; 0 already mapped in the library.
+- Result: 197 mapped by exact package — 17 to existing icons (telegram, notes, calculator,
+  youtube, photos, camera, clock, files, settings) and 180 to 107 new icons in batches 3–7
+  (20 each) and 8 (7). Skipped: `com.sndemo.app` (identity unknown; fallback icon kept).
+  `plan_batch.py` on the request file now reports only `sndemo` remaining.
+- DuckDuckGo (`com.duckduckgo.mobile.android`) was missed in the first mapping pass and was
+  caught by the package-coverage check; it got its own icon in batch 8.
+- Shared category icons (no invented brand marks): vpn (11 apps), sim (7), voip (6), code (6),
+  pay (5), icon_pack (5), browser (4), streaming (4), etc. Full table: `design/icons/BATCHES.md`.
+- Pipeline: manifest field `batch` (validated: non-negative int) → `IconSpec.batch`.
+  `build_icons.py --check`: 146 icons valid and up to date (local run).
+- Visual review: per-batch contact sheets rendered from the SVG sources, plus a sheet rendered
+  from the generated VectorDrawable `pathData` (all 146) to check the conversion. Redrawn after
+  review: bkash, binance, clone_phone, chess, patch, link, duckduckgo (sizing/legibility).
+- Settings → Icons: `IconLibraryStats` (pure, JVM-tested) → total apps / custom / missing,
+  coverage %, per-batch "icons · in use here". Search, filters, multi-select, copy and
+  TXT/CSV/JSON export unchanged.
+- Tests: `IconLibraryStatsTest`; `IconManifestTest` checks 20 exact request mappings, that
+  `com.sndemo.app` stays unmapped, and that every icon has a batch.
+- Not verified on a device: icon appearance on the Realme 9 SE.
+
 ## 2026-11-15 — Drawer gestures, setup assistant, restricted settings, floating windows
 
 No device/emulator available: gesture and permission flows are unverified on hardware.

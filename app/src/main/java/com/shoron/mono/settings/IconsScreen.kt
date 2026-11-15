@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -61,6 +62,8 @@ import com.shoron.mono.core.theme.MonoColors
 import com.shoron.mono.core.theme.Outfit
 import com.shoron.mono.data.HomeLayout
 import com.shoron.mono.data.LauncherPreferences
+import com.shoron.mono.icons.IconCoverage
+import com.shoron.mono.icons.IconLibraryStats
 import com.shoron.mono.icons.IconRepository
 import com.shoron.mono.icons.MissingIcon
 import com.shoron.mono.icons.MissingIconsExport
@@ -96,6 +99,13 @@ class IconsViewModel(
 
     val supportedCount: StateFlow<Int> = iconRepository.themedIcons.map { it.size }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
+    /** Total apps, custom icons, missing, and per-batch library progress. */
+    val coverage: StateFlow<IconCoverage?> =
+        combine(appRepository.apps, iconRepository.themedIcons) { apps, themed ->
+            apps?.let { IconLibraryStats.coverage(iconRepository.specs, it.size, themed) }
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** Every launchable app without a Thin Line icon (missing-icon detection). */
     private val missing: StateFlow<List<MissingRow>> =
@@ -168,6 +178,7 @@ fun IconsScreen(onBack: () -> Unit) {
     val layout by viewModel.layout.collectAsStateWithLifecycle()
     val supported by viewModel.supportedCount.collectAsStateWithLifecycle()
     val missingCount by viewModel.missingCount.collectAsStateWithLifecycle()
+    val coverage by viewModel.coverage.collectAsStateWithLifecycle()
     val rows by viewModel.visible.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
     val filter by viewModel.filter.collectAsStateWithLifecycle()
@@ -203,6 +214,7 @@ fun IconsScreen(onBack: () -> Unit) {
                     fontSize = 14.sp,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
+                coverage?.let { CoverageCard(it) }
 
                 SettingsSectionTitle(stringResource(R.string.icons_missing))
                 BasicTextField(
@@ -303,4 +315,50 @@ private fun copy(context: Context, text: String) {
     val clipboard = context.getSystemService(ClipboardManager::class.java) ?: return
     clipboard.setPrimaryClip(ClipData.newPlainText("MONO missing icons", text))
     Toast.makeText(context, R.string.icons_copied, Toast.LENGTH_SHORT).show()
+}
+
+/** Total apps · custom · missing, overall coverage bar and per-batch library progress. */
+@Composable
+private fun CoverageCard(c: IconCoverage) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
+        Text(
+            stringResource(R.string.icons_coverage, c.totalApps, c.customApps, c.missingApps),
+            color = MonoColors.Muted,
+            fontSize = 13.sp,
+        )
+        Spacer(Modifier.height(8.dp))
+        LinearProgressIndicator(
+            progress = { c.fraction },
+            color = MonoColors.Foreground,
+            trackColor = MonoColors.Hairline,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(stringResource(R.string.icons_coverage_percent, c.percent), color = MonoColors.Faint, fontSize = 12.sp)
+
+        SettingsSectionTitle(stringResource(R.string.icons_library))
+        Text(
+            stringResource(R.string.icons_library_size, c.libraryIcons, c.batches.size),
+            color = MonoColors.Muted,
+            fontSize = 13.sp,
+        )
+        Spacer(Modifier.height(6.dp))
+        c.batches.forEach { b ->
+            Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.icons_batch, b.batch),
+                    color = MonoColors.Foreground,
+                    fontSize = 13.sp,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    stringResource(R.string.icons_batch_progress, b.icons, b.inUse),
+                    color = MonoColors.Muted,
+                    fontSize = 12.sp,
+                )
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        SettingsNote(stringResource(R.string.icons_batch_note))
+    }
 }

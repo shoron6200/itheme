@@ -138,6 +138,13 @@
     <string name="settings_diagnostics">Diagnostics (since MONO started)</string>
 
     <string name="icons_counts">%1$d apps have Thin Line icons · %2$d still use their original icon</string>
+    <string name="icons_coverage">Total apps %1$d · Custom icons %2$d · Missing %3$d</string>
+    <string name="icons_coverage_percent">%1$d%% of apps use a Thin Line icon</string>
+    <string name="icons_library">Icon library</string>
+    <string name="icons_library_size">%1$d Thin Line icons in %2$d batches</string>
+    <string name="icons_batch">Batch %1$d</string>
+    <string name="icons_batch_progress">%1$d icons · %2$d in use here</string>
+    <string name="icons_batch_note">Apps without an exact icon keep their original (desaturated) icon. Export the missing list below to request new icons.</string>
     <string name="icons_missing">Missing icons</string>
     <string name="icons_search_hint">Search app or package</string>
     <string name="icons_filter_all">All</string>
