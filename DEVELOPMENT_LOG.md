@@ -27,6 +27,10 @@ Source of truth: owner's export `design/icons/requests/mono-missing-icons-2026-1
 - Tests: `IconLibraryStatsTest`; `IconManifestTest` checks 20 exact request mappings, that
   `com.sndemo.app` stays unmapped, and that every icon has a batch.
 - Not verified on a device: icon appearance on the Realme 9 SE.
+- CI run #20 (commit c26fe2e, run 43697811254): **success** — icon library validation, unit
+  tests, assembleDebug, lint (report), release R8 build all passed. Artifacts: `mono-debug-20`,
+  `MONO-final-20`, `reports-20`. Final APK still signed with the temporary CI key (MONO_*
+  signing secrets not configured).
 
 ## 2026-11-15 — Drawer gestures, setup assistant, restricted settings, floating windows
 
